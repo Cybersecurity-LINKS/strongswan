@@ -79,6 +79,8 @@ enum notify_type_t {
 	/* IKEv2 RFC 5996 */
 	TEMPORARY_FAILURE = 43,
 	CHILD_SA_NOT_FOUND = 44,
+	/* No more per-resource CHILD_SAs (draft-ietf-ipsecme-multi-sa-performance) */
+	TS_MAX_QUEUE = 48,
 
 	/* IKE-ME, private use */
 	ME_CONNECT_FAILED = 8192,
@@ -160,6 +162,8 @@ enum notify_type_t {
 	PPK_IDENTITY = 16436,
 	/* No Postquantum Preshared Key Auth, RFC 8784 */
 	NO_PPK_AUTH = 16437,
+	/* Resource info for CHILD_SAs (draft-ietf-ipsecme-multi-sa-performance) */
+	SA_RESOURCE_INFO = 16444,
 	/* IKEv1 initial contact */
 	INITIAL_CONTACT_IKEV1 = 24578,
 	/* IKEv1 DPD */
