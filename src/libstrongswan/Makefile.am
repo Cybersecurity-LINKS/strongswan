@@ -30,6 +30,7 @@ credentials/credential_manager.c credentials/ocsp_responders.c \
 credentials/sets/auth_cfg_wrapper.c credentials/sets/ocsp_response_wrapper.c \
 credentials/sets/cert_cache.c credentials/sets/mem_cred.c \
 credentials/sets/callback_cred.c credentials/auth_cfg.c database/database.c \
+credentials/vcs/verifiable_credential.c \
 database/database_factory.c fetcher/fetcher.c fetcher/fetcher_manager.c eap/eap.c \
 ipsec/ipsec_types.c \
 metadata/metadata_factory.c metadata/metadata_int.c metadata/metadata_set.c \
@@ -110,6 +111,7 @@ credentials/sets/auth_cfg_wrapper.h credentials/sets/ocsp_response_wrapper.h \
 credentials/sets/cert_cache.h credentials/sets/mem_cred.h \
 credentials/sets/callback_cred.h credentials/auth_cfg.h \
 credentials/credential_set.h credentials/cert_validator.h \
+credentials/vcs/verifiable_credential.h \
 database/database.h database/database_factory.h fetcher/fetcher.h \
 fetcher/fetcher_manager.h eap/eap.h pen/pen.h ipsec/ipsec_types.h \
 metadata/metadata.h metadata/metadata_factory.h metadata/metadata_int.h \
@@ -715,6 +717,20 @@ if USE_TEST_VECTORS
   SUBDIRS += plugins/test_vectors
 if MONOLITHIC
   libstrongswan_la_LIBADD += plugins/test_vectors/libstrongswan-test-vectors.la
+endif
+endif
+
+if USE_SSI
+  SUBDIRS += plugins/ssi
+if MONOLITHIC
+  libstrongswan_la_LIBADD += plugins/ssi/libstrongswan-ssi.la
+endif
+endif
+
+if USE_VC
+  SUBDIRS += plugins/vc
+if MONOLITHIC
+  libstrongswan_la_LIBADD += plugins/vc/libstrongswan-vc.la
 endif
 endif
 

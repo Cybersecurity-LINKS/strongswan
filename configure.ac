@@ -309,6 +309,8 @@ ARG_ENABL_SET([systemd],        [enable systemd specific IKE daemon charon-syste
 ARG_DISBL_SET([swanctl],        [disable swanctl configuration and control tool.])
 ARG_ENABL_SET([tkm],            [enable Trusted Key Manager support.])
 ARG_ENABL_SET([cert-enroll],    [enable automatic certificate enrollment via EST or SCEP.])
+ARG_ENABL_SET([ssi],			[enable SSI implementation plugin.])
+ARG_ENABL_SET([vc],				[enable VC implementation plugin.])
 # optional features
 ARG_ENABL_SET([bfd-backtraces], [use binutils libbfd to resolve backtraces for memory leaks and segfaults.])
 ARG_ENABL_SET([dbghelp-backtraces],[use dbghlp.dll on Windows to create and print backtraces for memory leaks and segfaults.])
@@ -1678,6 +1680,8 @@ ADD_PLUGIN([uci],                  [c charon])
 ADD_PLUGIN([addrblock],            [c charon])
 ADD_PLUGIN([unity],                [c charon])
 ADD_PLUGIN([counters],             [c charon])
+ADD_PLUGIN([ssi], 				   [c charon])
+ADD_PLUGIN([vc],				   [c charon])
 
 AC_SUBST(charon_plugins)
 AC_SUBST(pool_plugins)
@@ -1764,6 +1768,8 @@ AM_CONDITIONAL(USE_NTRU, test x$ntru = xtrue)
 AM_CONDITIONAL(USE_NEWHOPE, test x$newhope = xtrue)
 AM_CONDITIONAL(USE_BLISS, test x$bliss = xtrue)
 AM_CONDITIONAL(USE_DRBG, test x$drbg = xtrue)
+AM_CONDITIONAL(USE_SSI, test x$ssi = xtrue)
+AM_CONDITIONAL(USE_VC, test x$vc = xtrue)
 
 #  charon plugins
 # ----------------
@@ -1949,6 +1955,9 @@ fi
 if test x$imc_swima = xtrue -o x$imv_swima = xtrue; then
 	AC_DEFINE([USE_JSON], [], [build code for JSON])
 fi
+if test x$vc = xtrue; then
+	AC_DEFINE([VC_AUTH], [], [VC authentication extension support])
+fi
 
 # ====================================================
 #  options for enabled modules (see conf/Makefile.am)
@@ -2052,6 +2061,8 @@ AC_CONFIG_FILES([
 	src/libstrongswan/plugins/newhope/Makefile
 	src/libstrongswan/plugins/newhope/tests/Makefile
 	src/libstrongswan/plugins/test_vectors/Makefile
+	src/libstrongswan/plugins/ssi/Makefile
+	src/libstrongswan/plugins/vc/Makefile
 	src/libstrongswan/tests/Makefile
 	src/libipsec/Makefile
 	src/libipsec/tests/Makefile

@@ -25,6 +25,7 @@
 #include <credentials/certificates/ac.h>
 #include <credentials/certificates/crl.h>
 #include <credentials/certificates/x509.h>
+#include <credentials/vcs/verifiable_credential.h>
 
 #include <errno.h>
 
@@ -504,6 +505,42 @@ CALLBACK(unload_shared, vici_message_t*,
 	return create_reply(NULL);
 }
 
+CALLBACK(load_vc, vici_message_t*, private_vici_cred_t *this, char *name, u_int id, vici_message_t *message)
+{	
+	verifiable_credential_t *vc;
+	verifiable_credential_type_t type;
+	chunk_t data;
+	char *str;
+
+	str = message->get_str(message, NULL, "type");
+	if (!str)
+	{
+		return create_reply("vc type missing");
+	}
+	if (!enum_from_name(vc_type_names, str, &type))
+	{
+		return create_reply("invalid vc type: %s", str);
+	}
+	data = message->get_value(message, chunk_empty, "data");
+	if (!data.len)
+	{
+		return create_reply("key data missing");
+	}
+	vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, type, 
+							BUILD_BLOB_PEM, data, BUILD_END);
+	if (!vc)
+	{
+		return create_reply("parsing %N vc failed",
+							key_type_names, type);
+	}
+
+	DBG1(DBG_CFG, "loaded %N vc", key_type_names, type);
+
+	//this->creds->add_vc(this->creds, vc);
+	
+	return create_reply(NULL);
+}
+
 CALLBACK(get_shared, vici_message_t*,
 	private_vici_cred_t *this, char *name, u_int id, vici_message_t *message)
 {
@@ -575,6 +612,7 @@ static void manage_commands(private_vici_cred_t *this, bool reg)
 	manage_command(this, "load-shared", load_shared, reg);
 	manage_command(this, "unload-shared", unload_shared, reg);
 	manage_command(this, "get-shared", get_shared, reg);
+	manage_command(this, "load-vc", load_vc, reg);
 }
 
 METHOD(vici_cred_t, add_cert, certificate_t*,

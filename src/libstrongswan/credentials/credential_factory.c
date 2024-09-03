@@ -24,12 +24,14 @@
 #include <threading/rwlock.h>
 #include <credentials/certificates/x509.h>
 #include <credentials/containers/container.h>
+#include <credentials/vcs/verifiable_credential.h>
 
-ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_CONTAINER,
+ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_VERIFIABLE_CREDENTIAL,
 	"CRED_PRIVATE_KEY",
 	"CRED_PUBLIC_KEY",
 	"CRED_CERTIFICATE",
 	"CRED_CONTAINER",
+	"CRED_VERIFIABLE_CREDENTIAL",
 );
 
 typedef struct private_credential_factory_t private_credential_factory_t;
@@ -128,6 +130,9 @@ METHOD(credential_factory_t, create, void*,
 			break;
 		case CRED_CONTAINER:
 			names = container_type_names;
+			break;
+		case CRED_VERIFIABLE_CREDENTIAL:
+			names = vc_type_names;
 			break;
 		case CRED_PRIVATE_KEY:
 		case CRED_PUBLIC_KEY:

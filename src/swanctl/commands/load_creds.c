@@ -649,7 +649,81 @@ static void load_tokens(load_ctx_t *ctx)
 	enumerator->destroy(enumerator);
 }
 
+/**
+ * Load a single VC over vici
+ */
+static bool load_vc(load_ctx_t *ctx, char *dir, char *type, chunk_t data)
+{	
+	vici_req_t *req;
+	vici_res_t *res;
+	bool ret = TRUE;
 
+	req = vici_begin("load-vc");
+
+	vici_add_key_valuef(req, "type", "%s", type);
+	vici_add_key_value(req, "data", data.ptr, data.len);
+
+	res = vici_submit(req, ctx->conn);
+	if (!res)
+	{
+		fprintf(stderr, "load-vc request failed: %s\n", strerror(errno));
+		return FALSE;
+	}
+	if (ctx->format & COMMAND_FORMAT_RAW)
+	{
+		vici_dump(res, "load-vc reply", ctx->format & COMMAND_FORMAT_PRETTY,
+				  stdout);
+	}
+	else if (!streq(vici_find_str(res, "no", "success"), "yes"))
+	{
+		fprintf(stderr, "loading '%s' failed: %s\n",
+				dir, vici_find_str(res, "", "errmsg"));
+		ret = FALSE;
+	}
+	else
+	{
+		printf("loaded vc from '%s'\n", dir);
+	}
+	vici_free_res(res);
+	ret;
+}
+
+/**
+ * Load VCs from a directory
+ */
+static void load_vcs(load_ctx_t *ctx, char *type, char *dir)
+{
+	enumerator_t *enumerator;
+	struct stat st;
+	chunk_t *map;
+	char *path, *rel, buf[PATH_MAX];
+
+	snprintf(buf, sizeof(buf), "%s%s%s", swanctl_dir, DIRECTORY_SEPARATOR, dir);
+	dir = buf;
+
+	enumerator = enumerator_create_directory(dir);
+	if (enumerator)
+	{
+		while (enumerator->enumerate(enumerator, NULL, &path, &st))
+		{
+			if (S_ISREG(st.st_mode))
+			{
+				map = chunk_map(path, FALSE);
+				if (map)
+				{
+					load_vc(ctx, path, type, *map);
+					chunk_unmap_clear(map);
+				}
+				else
+				{
+					fprintf(stderr, "mapping '%s' failed: %s, skipped\n",
+							path, strerror(errno));
+				}
+			}
+		}
+		enumerator->destroy(enumerator);	
+	}
+}
 
 /**
  * Load a single secret over VICI
@@ -926,6 +1000,8 @@ int load_creds_cfg(vici_conn_t *conn, command_format_options_t format,
 	load_keys(&ctx, "pkcs8",   SWANCTL_PKCS8DIR);
 
 	load_containers(&ctx, "pkcs12", SWANCTL_PKCS12DIR);
+
+	load_vcs(&ctx, "dm20", SWANCTL_VCDIR);
 
 	load_tokens(&ctx);
 
