@@ -42,8 +42,10 @@ enum credential_type_t {
 	CRED_CERTIFICATE,
 	/** crypto container, implemented in container_t */
 	CRED_CONTAINER,
+#ifdef VC_AUTH
 	/** vc container, implemented in verifiable_credential_t */
 	CRED_VERIFIABLE_CREDENTIAL,
+#endif
 };
 
 /**

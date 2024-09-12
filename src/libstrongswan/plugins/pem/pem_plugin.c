@@ -44,6 +44,7 @@ METHOD(plugin_t, get_features, int,
 	private_pem_plugin_t *this, plugin_feature_t *features[])
 {
 	static plugin_feature_t f[] = {
+
 		/* private key PEM decoding */
 		PLUGIN_REGISTER(PRIVKEY, pem_private_key_load, FALSE),
 			PLUGIN_PROVIDE(PRIVKEY, KEY_ANY),
@@ -130,6 +131,16 @@ METHOD(plugin_t, get_features, int,
 				PLUGIN_DEPENDS(CONTAINER_DECODE, CONTAINER_PKCS12),
 			PLUGIN_PROVIDE(CONTAINER_DECODE, CONTAINER_PKCS7),
 				PLUGIN_DEPENDS(CONTAINER_DECODE, CONTAINER_PKCS7),
+
+#ifdef VC_AUTH
+		/* verifiable credential PEM decoding */
+		PLUGIN_REGISTER(VC, pem_vc_load, FALSE),
+			PLUGIN_PROVIDE(VC, VC_ANY),
+				//PLUGIN_DEPENDS(VC, VC_ANY),
+		PLUGIN_REGISTER(VC, pem_vc_load, FALSE),
+			PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
+				//PLUGIN_DEPENDS(VC, VC_DATA_MODEL_2_0),
+#endif	
 	};
 	*features = f;
 	return countof(f);

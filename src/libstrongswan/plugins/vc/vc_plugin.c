@@ -1,3 +1,4 @@
+#ifdef VC_AUTH
 #include "vc_plugin.h"
 #include "vc.h"
 
@@ -25,7 +26,7 @@ METHOD(plugin_t, get_features, int,
 	private_vc_plugin_t *this, plugin_feature_t *features[])
 {   
     static plugin_feature_t f[] = {
-        PLUGIN_REGISTER(VC, vc_load),
+        PLUGIN_REGISTER(VC, vc_load, FALSE),
             PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
     };
 
@@ -58,3 +59,4 @@ plugin_t *vc_plugin_create()
 
     return &this->public.plugin;
 }
+#endif

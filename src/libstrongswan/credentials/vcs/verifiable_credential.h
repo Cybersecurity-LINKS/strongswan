@@ -1,3 +1,4 @@
+#ifdef VC_AUTH
 #ifndef VERIFIABLE_CREDENTIAL_H_
 #define VERIFIABLE_CREDENTIAL_H_
 
@@ -25,8 +26,37 @@ extern enum_name_t *vc_type_names;
 
 struct verifiable_credential_t {
 
-    int (*setup)(const char *stronghold_path, const char *password);
-    //Did *(*did_create)(const Wallet *wallet);
+    /**
+     * Initializes the wallet
+     * 
+     * @param stronghold_path path to store the wallet
+     * @param password password to access the wallet
+     * @return TRUE if the wallet is created succesfully
+     */
+    bool (*wallet_setup)(verifiable_credential_t *this, const char *stronghold_path, const char *password);
+
+    /**
+	 * Check if two verifiable credentials are equal.
+	 *
+	 * @param other		other verifiable credential
+	 * @return			TRUE, if equality
+	 */
+	bool (*equals) (verifiable_credential_t *this, verifiable_credential_t *other);
+
+    /**
+	 * Decrease refcount, destroy verifiable_credential if no more references.
+	 */
+	void (*destroy)(verifiable_credential_t *this);
 };
 
+/**
+ * Generic verifiable credentials equals() implementation, usable by implementers.
+ *
+ * @param vc		    verifiable credential to check
+ * @param other			verifiable credential to compare
+ * @return				TRUE if this is equal to other
+ */
+bool verifiable_credential_equals(verifiable_credential_t *vc, verifiable_credential_t *other);
+
+#endif
 #endif

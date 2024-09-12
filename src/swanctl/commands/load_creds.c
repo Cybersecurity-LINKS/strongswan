@@ -649,6 +649,7 @@ static void load_tokens(load_ctx_t *ctx)
 	enumerator->destroy(enumerator);
 }
 
+#ifdef VC_AUTH
 /**
  * Load a single VC over vici
  */
@@ -687,7 +688,9 @@ static bool load_vc(load_ctx_t *ctx, char *dir, char *type, chunk_t data)
 	vici_free_res(res);
 	ret;
 }
+#endif
 
+#ifdef VC_AUTH
 /**
  * Load VCs from a directory
  */
@@ -724,6 +727,7 @@ static void load_vcs(load_ctx_t *ctx, char *type, char *dir)
 		enumerator->destroy(enumerator);	
 	}
 }
+#endif
 
 /**
  * Load a single secret over VICI
@@ -1000,9 +1004,9 @@ int load_creds_cfg(vici_conn_t *conn, command_format_options_t format,
 	load_keys(&ctx, "pkcs8",   SWANCTL_PKCS8DIR);
 
 	load_containers(&ctx, "pkcs12", SWANCTL_PKCS12DIR);
-
+#ifdef VC_AUTH
 	load_vcs(&ctx, "dm20", SWANCTL_VCDIR);
-
+#endif
 	load_tokens(&ctx);
 
 	enumerator = cfg->create_section_enumerator(cfg, "secrets");

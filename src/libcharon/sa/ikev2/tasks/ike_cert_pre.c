@@ -108,6 +108,25 @@ static void process_certreq(private_ike_cert_pre_t *this,
 
 	this->ike_sa->set_condition(this->ike_sa, COND_CERTREQ_SEEN, TRUE);
 
+/* #ifdef VC_AUTH
+	if (certreq->get_cert_type(certreq) != VC_ANY)
+	{
+		enumerator = certreq->create_keyid_enumerator(certreq);
+		while (enumerator->enumerate(enumerator, &keyid))
+		{
+			identification_t *id;
+			verifiable_credential_t *vc;
+
+			id = identification_create_from_encoding(ID_KEY_ID, keyid);
+			vc = lib->credmgr->get_cert(lib->credmgr,
+										  VC_ANY, KEY_ANY, id, TRUE);
+		
+			// TODO
+		}
+		return;
+	}
+#endif */
+
 	if (certreq->get_cert_type(certreq) != CERT_X509)
 	{
 		DBG1(DBG_IKE, "cert payload %N not supported - ignored",

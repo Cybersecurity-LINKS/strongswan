@@ -54,7 +54,9 @@ ENUM(plugin_feature_names, FEATURE_NONE, FEATURE_CUSTOM,
 	"DATABASE",
 	"FETCHER",
 	"RESOLVER",
+#ifdef VC_AUTH
 	"VC",
+#endif
 	"CUSTOM",
 );
 
@@ -484,9 +486,6 @@ bool plugin_feature_load(plugin_t *plugin, plugin_feature_t *feature,
 		return FALSE;
 	}
 	name = plugin->get_name(plugin);
-	if(strcasecmp(name, "vc") == 0) {
-		printf("The name is: %s\n", name);
-	}
 	switch (feature->type)
 	{
 		case FEATURE_NONE:
@@ -579,11 +578,13 @@ bool plugin_feature_load(plugin_t *plugin, plugin_feature_t *feature,
 		case FEATURE_RESOLVER:
 			lib->resolver->add_resolver(lib->resolver, reg->arg.reg.f);
 			break;
+#ifdef VC_AUTH
 		case FEATURE_VC:
 			lib->creds->add_builder(lib->creds, CRED_VERIFIABLE_CREDENTIAL,
 								feature->arg.vc, reg->arg.reg.final,
 								name, reg->arg.reg.f);
 			break;
+#endif
 	}
 	return TRUE;
 }
@@ -677,6 +678,10 @@ bool plugin_feature_unload(plugin_t *plugin, plugin_feature_t *feature,
 		case FEATURE_RESOLVER:
 			lib->resolver->remove_resolver(lib->resolver, reg->arg.reg.f);
 			break;
+#ifdef VC_AUTH 
+		case FEATURE_VC:
+			lib->creds->remove_builder(lib->creds, reg->arg.reg.f);
+#endif
 	}
 	return TRUE;
 }

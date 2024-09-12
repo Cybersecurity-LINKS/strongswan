@@ -1,3 +1,4 @@
+#ifdef VC_AUTH
 #ifndef IDENTITY_H_
 #define IDENTITY_H_
 
@@ -16,7 +17,7 @@ typedef struct rvalue_t {
   uint32_t code;
 } rvalue_t;
 
-struct Wallet *w_setup(const char *stronghold_path, const char *password);
+struct Wallet *setup(const char *stronghold_path, const char *password);
 
 struct Did *did_create(const struct Wallet *wallet);
 
@@ -47,4 +48,5 @@ const char *get_vc(const struct Vc *vc);
 
 struct Vc *set_vc(const char *vc_jwt);
 
+#endif
 #endif

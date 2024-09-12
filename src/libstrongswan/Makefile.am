@@ -720,13 +720,6 @@ if MONOLITHIC
 endif
 endif
 
-if USE_SSI
-  SUBDIRS += plugins/ssi
-if MONOLITHIC
-  libstrongswan_la_LIBADD += plugins/ssi/libstrongswan-ssi.la
-endif
-endif
-
 if USE_VC
   SUBDIRS += plugins/vc
 if MONOLITHIC

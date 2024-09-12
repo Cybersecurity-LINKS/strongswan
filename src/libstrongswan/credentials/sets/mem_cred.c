@@ -61,6 +61,13 @@ struct private_mem_cred_t {
 	 * List of CDPs, as cdp_t
 	 */
 	linked_list_t *cdps;
+
+#ifdef VC_AUTH
+	/**
+	 * List of verifiable credentials, verifiable_credential_t
+	 */
+	linked_list_t *vcs;
+#endif
 };
 
 /**
@@ -882,6 +889,88 @@ METHOD(mem_cred_t, destroy, void,
 	free(this);
 }
 
+#ifdef VC_AUTH
+METHOD(mem_cred_t, add_vc, void,
+	private_mem_cred_t *this, verifiable_credential_t *vc)
+{
+	enumerator_t *enumerator;
+	verifiable_credential_t *current;
+
+	this->lock->write_lock(this->lock);
+
+	enumerator = this->vcs->create_enumerator(this->vcs);
+	while (enumerator->enumerate(enumerator, &current))
+	{
+		if (current->equals(current, vc))
+		{
+			this->vcs->remove_at(this->vcs, enumerator);
+			current->destroy(current);
+			break;
+		}
+	}
+	enumerator->destroy(enumerator);
+
+	this->vcs->insert_first(this->vcs, vc);
+
+	this->lock->unlock(this->lock);
+}
+#endif
+
+#ifdef VC_AUTH
+METHOD(mem_cred_t, remove_vc, bool,
+	private_mem_cred_t *this, verifiable_credential_t *vc)
+{
+	enumerator_t *enumerator;
+	verifiable_credential_t *current;
+	bool found = FALSE;
+
+	this->lock->write_lock(this->lock);
+
+	enumerator = this->vcs->create_enumerator(this->vcs);
+	while (enumerator->enumerate(enumerator, &current))
+	{
+		if (current->equals(current, vc))
+		{
+			this->vcs->remove_at(this->vcs, enumerator);
+			current->destroy(current);
+			found = TRUE;
+			break;
+		}
+	}
+	enumerator->destroy(enumerator);
+
+	this->lock->unlock(this->lock);
+	return found;
+}
+#endif
+
+/* #ifdef VC_AUTH
+METHOD(mem_cred_t, add_vc_ref, verifiable_credential_t*,
+	private_mem_cred_t *this, verifiable_credential_t *vc)
+{
+	return add_vc_internal(this, vc);
+}
+#endif */
+
+/* #ifdef VC_AUTH
+METHOD(mem_cred_t, get_vc_ref, verifiable_credential_t*,
+	private_mem_cred_t *this, verifiable_credential_t *vc)
+{
+	verifiable_credential_t *cached;
+
+	this->lock->read_lock(this->lock);
+	if (this->untrusted->find_first(this->untrusted, certificate_equals,
+									(void**)&cached, cert))
+	{
+		cert->destroy(cert);
+		vc = cached->get_ref(cached);
+	}
+	this->lock->unlock(this->lock);
+
+	return vc;
+}
+#endif */
+
 /**
  * See header
  */
@@ -915,12 +1004,19 @@ mem_cred_t *mem_cred_create()
 			.clear = _clear_,
 			.clear_secrets = _clear_secrets,
 			.destroy = _destroy,
+#ifdef VC_AUTH
+			.add_vc = _add_vc,  
+			.remove_vc = _remove_vc,
+#endif
 		},
 		.trusted = linked_list_create(),
 		.untrusted = linked_list_create(),
 		.keys = linked_list_create(),
 		.shared = linked_list_create(),
 		.cdps = linked_list_create(),
+#ifdef VC_AUTH
+		.vcs = linked_list_create(),
+#endif
 		.lock = rwlock_create(RWLOCK_TYPE_DEFAULT),
 	);
 

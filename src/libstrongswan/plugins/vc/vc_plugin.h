@@ -1,3 +1,4 @@
+#ifdef VC_AUTH
 #ifndef VC_PLUGIN_H_
 #define VC_PLUGIN_H_
 
@@ -20,3 +21,4 @@ struct vc_plugin_t {
 
 
 #endif /** VC_PLUGIN_H_ @}*/
+#endif

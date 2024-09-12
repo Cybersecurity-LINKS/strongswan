@@ -101,10 +101,12 @@ extern char *swanctl_dir;
  */
 #define SWANCTL_PKCS12DIR "pkcs12"
 
+#ifdef VC_AUTH
 /**
  * Directory for VC
  */
 #define SWANCTL_VCDIR "vc"
+#endif
 
 /**
  * Load swanctl.conf, optionally from a custom path. Sets the base dir relative

@@ -28,6 +28,7 @@
 #include <credentials/keys/private_key.h>
 #include <credentials/certificates/certificate.h>
 #include <credentials/containers/container.h>
+#include <credentials/vcs/verifiable_credential.h>
 
 /**
  * Load PEM encoded private keys.
@@ -64,6 +65,17 @@ certificate_t *pem_certificate_load(certificate_type_t type, va_list args);
  * @return 			container, NULL if failed
  */
 container_t *pem_container_load(container_type_t type, va_list args);
+
+#ifdef VC_AUTH
+/** 
+ * Build PEM encoded VC.
+ * 
+ * @param type  type of the verifiable credential
+ * @param args  builder_part_t argument list
+ * @return      verifiable credential, NULL if failed
+ */
+verifiable_credential_t *pem_vc_load(verifiable_credential_type_t type, va_list args);
+#endif
 
 #endif /** PEM_BUILDER_H_ @}*/
 

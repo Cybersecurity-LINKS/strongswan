@@ -26,6 +26,7 @@
 #include <credentials/containers/container.h>
 #include <credentials/vcs/verifiable_credential.h>
 
+#ifdef VC_AUTH
 ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_VERIFIABLE_CREDENTIAL,
 	"CRED_PRIVATE_KEY",
 	"CRED_PUBLIC_KEY",
@@ -33,6 +34,14 @@ ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_VERIFIABLE_CREDENTIAL,
 	"CRED_CONTAINER",
 	"CRED_VERIFIABLE_CREDENTIAL",
 );
+#else
+ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_CONTAINER,
+	"CRED_PRIVATE_KEY",
+	"CRED_PUBLIC_KEY",
+	"CRED_CERTIFICATE",
+	"CRED_CONTAINER",
+);
+#endif
 
 typedef struct private_credential_factory_t private_credential_factory_t;
 
@@ -131,9 +140,11 @@ METHOD(credential_factory_t, create, void*,
 		case CRED_CONTAINER:
 			names = container_type_names;
 			break;
+#ifdef VC_AUTH
 		case CRED_VERIFIABLE_CREDENTIAL:
 			names = vc_type_names;
 			break;
+#endif
 		case CRED_PRIVATE_KEY:
 		case CRED_PUBLIC_KEY:
 		default:

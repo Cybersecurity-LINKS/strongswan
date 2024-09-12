@@ -25,7 +25,9 @@
 #include <credentials/certificates/ac.h>
 #include <credentials/certificates/crl.h>
 #include <credentials/certificates/x509.h>
+#ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#endif
 
 #include <errno.h>
 
@@ -505,6 +507,7 @@ CALLBACK(unload_shared, vici_message_t*,
 	return create_reply(NULL);
 }
 
+#ifdef VC_AUTH
 CALLBACK(load_vc, vici_message_t*, private_vici_cred_t *this, char *name, u_int id, vici_message_t *message)
 {	
 	verifiable_credential_t *vc;
@@ -531,15 +534,16 @@ CALLBACK(load_vc, vici_message_t*, private_vici_cred_t *this, char *name, u_int 
 	if (!vc)
 	{
 		return create_reply("parsing %N vc failed",
-							key_type_names, type);
+							vc_type_names, type);
 	}
 
-	DBG1(DBG_CFG, "loaded %N vc", key_type_names, type);
+	DBG1(DBG_CFG, "loaded %N vc", vc_type_names, type);
 
-	//this->creds->add_vc(this->creds, vc);
+	this->creds->add_vc(this->creds, vc);
 	
 	return create_reply(NULL);
 }
+#endif
 
 CALLBACK(get_shared, vici_message_t*,
 	private_vici_cred_t *this, char *name, u_int id, vici_message_t *message)
@@ -612,7 +616,9 @@ static void manage_commands(private_vici_cred_t *this, bool reg)
 	manage_command(this, "load-shared", load_shared, reg);
 	manage_command(this, "unload-shared", unload_shared, reg);
 	manage_command(this, "get-shared", get_shared, reg);
+#ifdef VC_AUTH
 	manage_command(this, "load-vc", load_vc, reg);
+#endif
 }
 
 METHOD(vici_cred_t, add_cert, certificate_t*,

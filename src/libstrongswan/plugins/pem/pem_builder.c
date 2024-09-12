@@ -532,3 +532,13 @@ container_t *pem_container_load(container_type_t type, va_list args)
 {
 	return pem_load(CRED_CONTAINER, type, args);
 }
+
+#ifdef VC_AUTH
+/**
+ * Verifiable Credential PEM loader.
+ */
+verifiable_credential_t *pem_vc_load(verifiable_credential_type_t type, va_list args)
+{
+	return pem_load(CRED_VERIFIABLE_CREDENTIAL, type, args);
+}
+#endif

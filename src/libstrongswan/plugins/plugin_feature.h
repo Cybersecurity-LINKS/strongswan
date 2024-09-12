@@ -30,7 +30,9 @@ typedef struct plugin_feature_t plugin_feature_t;
 #include <eap/eap.h>
 #include <plugins/plugin.h>
 #include <credentials/containers/container.h>
+#ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#endif
 
 /**
  * Callback function of a plugin to (un-)register a specified feature.
@@ -159,8 +161,10 @@ struct plugin_feature_t {
 		FEATURE_FETCHER,
 		/** resolver_t */
 		FEATURE_RESOLVER,
+#ifdef VC_AUTH
 		/** generic VC support */
 		FEATURE_VC,
+#endif
 		/** custom feature, described with a string */
 		FEATURE_CUSTOM,
 	} type;
@@ -220,9 +224,10 @@ struct plugin_feature_t {
 		char *custom;
 		/** FEATURE_XAUTH_SERVER/CLIENT */
 		char *xauth;
+#ifdef VC_AUTH
 		/** FEATURE_VC */
 		verifiable_credential_type_t vc;
-
+#endif
 		/** FEATURE_REGISTER */
 		struct {
 			/** final flag to pass for builder_function_t */
@@ -322,7 +327,9 @@ struct plugin_feature_t {
 #define _PLUGIN_FEATURE_CUSTOM(kind, name)					__PLUGIN_FEATURE(kind, CUSTOM, .custom = name)
 #define _PLUGIN_FEATURE_XAUTH_SERVER(kind, name)			__PLUGIN_FEATURE(kind, XAUTH_SERVER, .xauth = name)
 #define _PLUGIN_FEATURE_XAUTH_PEER(kind, name)				__PLUGIN_FEATURE(kind, XAUTH_PEER, .xauth = name)
+#ifdef VC_AUTH
 #define _PLUGIN_FEATURE_VC(kind, type)						__PLUGIN_FEATURE(kind, VC, .vc = type)
+#endif
 
 #define __PLUGIN_FEATURE_REGISTER(type, _f)					(plugin_feature_t){ FEATURE_REGISTER, FEATURE_##type, .arg.reg.f = _f }
 #define __PLUGIN_FEATURE_REGISTER_BUILDER(type, _f, _final)	(plugin_feature_t){ FEATURE_REGISTER, FEATURE_##type, .arg.reg = {.f = _f, .final = _final, }}
@@ -347,7 +354,9 @@ struct plugin_feature_t {
 #define _PLUGIN_FEATURE_REGISTER_DATABASE(type, f)			__PLUGIN_FEATURE_REGISTER(type, f)
 #define _PLUGIN_FEATURE_REGISTER_FETCHER(type, f)			__PLUGIN_FEATURE_REGISTER(type, f)
 #define _PLUGIN_FEATURE_REGISTER_RESOLVER(type, f)			__PLUGIN_FEATURE_REGISTER(type, f)
-#define _PLUGIN_FEATURE_REGISTER_VC(type, f)				__PLUGIN_FEATURE_REGISTER(type, f)
+#ifdef VC_AUTH
+#define _PLUGIN_FEATURE_REGISTER_VC(type, f, final)				__PLUGIN_FEATURE_REGISTER_BUILDER(type, f, final)
+#endif
 
 #define _PLUGIN_FEATURE_CALLBACK(_cb, _data) (plugin_feature_t){ FEATURE_CALLBACK, FEATURE_NONE, .arg.cb = { .f = _cb, .data = _data } }
 
