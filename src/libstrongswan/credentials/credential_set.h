@@ -27,6 +27,9 @@ typedef struct credential_set_t credential_set_t;
 #include <credentials/keys/public_key.h>
 #include <credentials/keys/shared_key.h>
 #include <credentials/certificates/certificate.h>
+#ifdef VC_AUTH
+#include <credentials/vcs/verifiable_credential.h>
+#endif
 
 /**
  * A set of credentials.
@@ -104,6 +107,17 @@ struct credential_set_t {
 	 * @param cert		certificate to cache
 	 */
 	void (*cache_cert)(credential_set_t *this, certificate_t *cert);
+
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over verifiable credentials.
+	 *
+	 * @param vc		kind of verifiable credential
+	 * @return			enumerator over the credentials
+	 */
+	enumerator_t *(*create_vc_enumerator)(credential_set_t *this,
+								verifiable_credential_type_t vc, identification_t *vcid);
+#endif
 };
 
 #endif /** CREDENTIAL_SET_H_ @}*/

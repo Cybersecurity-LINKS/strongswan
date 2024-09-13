@@ -523,6 +523,16 @@ static void add_certreq_ocsp(certreq_payload_t *req, certificate_t *cert)
 	public->destroy(public);
 }
 
+#ifdef VC_AUTH
+/**
+ * add the DID Methods to the certificate request payload
+ */
+static void add_certreq_vc(certreq_payload_t *req, verifiable_credential_t *vc)
+{
+	return;
+}
+#endif
+
 /**
  * build certificate requests
  */
@@ -534,6 +544,10 @@ static void build_certreqs(private_ike_cert_pre_t *this, message_t *message)
 	certificate_t *cert;
 	auth_cfg_t *auth;
 	certreq_payload_t *req = NULL;
+#ifdef VC_AUTH
+	enumerator_t *vc_enumerator;
+	verifiable_credential_t *vc;
+#endif
 
 	ike_cfg = this->ike_sa->get_ike_cfg(this->ike_sa);
 	if (ike_cfg->send_certreq(ike_cfg))
@@ -590,6 +604,23 @@ static void build_certreqs(private_ike_cert_pre_t *this, message_t *message)
 
 		message->add_payload(message, (payload_t*)req);
 	}
+
+#ifdef VC_AUTH
+	if (ike_cfg->send_vc_certreq(ike_cfg))
+	{
+		req = certreq_vc_payload_create_type(VC_ANY);
+
+		vc_enumerator = lib->credmgr->create_vc_enumerator(lib->credmgr,
+													VC_ANY, NULL);
+		while (enumerator->enumerate(enumerator, &vc))
+		{
+			add_certreq_vc(req, vc);	
+		}
+		enumerator->destroy(enumerator);
+
+		message->add_payload(message, (payload_t*)req);
+	}
+#endif
 }
 
 /**

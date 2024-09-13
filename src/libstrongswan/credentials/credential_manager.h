@@ -338,6 +338,17 @@ struct credential_manager_t {
 	 * Destroy a credential_manager instance.
 	 */
 	void (*destroy)(credential_manager_t *this);
+
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over all verifiable credentials.
+	 *
+	 * @param vc		kind of certificate
+	 * @return			enumerator over the credentials
+	 */
+	enumerator_t *(*create_vc_enumerator)(credential_manager_t *this,
+								verifiable_credential_type_t vc,identification_t *vcid);
+#endif
 };
 
 /**

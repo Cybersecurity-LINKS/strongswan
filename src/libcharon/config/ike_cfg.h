@@ -272,6 +272,15 @@ struct ike_cfg_t {
 	 * destroys the ike_cfg when it reaches zero.
 	 */
 	void (*destroy) (ike_cfg_t *this);
+
+#ifdef VC_AUTH
+	/**
+	 * Should we send a verifiable credential request in IKE_SA_INIT?
+	 *
+	 * @return				verifiable credential request sending policy
+	 */
+	bool (*send_vc_certreq) (ike_cfg_t *this);
+#endif
 };
 
 /**
@@ -305,6 +314,10 @@ struct ike_cfg_create_t {
 	childless_t childless;
 	/** DSCP value to send IKE packets with */
 	uint8_t dscp;
+#ifdef VC_AUTH
+	/** TRUE to send VC request */
+	bool vc_certreq;
+#endif
 };
 
 /**

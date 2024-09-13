@@ -125,6 +125,13 @@ struct private_ike_cfg_t {
 	 * List of proposals to use
 	 */
 	linked_list_t *proposals;
+
+#ifdef VC_AUTH
+	/**
+	 * should we send a verifiable credential request?
+	 */
+	bool vc_certreq;
+#endif
 };
 
 METHOD(ike_cfg_t, get_version, ike_version_t,
@@ -441,6 +448,14 @@ METHOD(ike_cfg_t, destroy, void,
 	}
 }
 
+#ifdef VC_AUTH
+METHOD(ike_cfg_t, send_vc_certreq, bool,
+	private_ike_cfg_t *this)
+{
+	return this->vc_certreq;
+}
+#endif
+
 /**
  * Try to parse a string as subnet
  */
@@ -626,6 +641,9 @@ ike_cfg_t *ike_cfg_create(ike_cfg_create_t *data)
 			.equals = _equals,
 			.get_ref = _get_ref,
 			.destroy = _destroy,
+#ifdef VC_AUTH
+			.send_vc_certreq = _send_vc_certreq,
+#endif
 		},
 		.refcount = 1,
 		.version = data->version,
@@ -644,6 +662,9 @@ ike_cfg_t *ike_cfg_create(ike_cfg_create_t *data)
 		.other_port = data->remote_port,
 		.dscp = data->dscp,
 		.proposals = linked_list_create(),
+#ifdef VC_AUTH
+		.vc_certreq = data->vc_certreq,
+#endif
 	);
 
 	parse_addresses(data->local, this->my_hosts, this->my_ranges);

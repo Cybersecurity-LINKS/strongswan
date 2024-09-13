@@ -316,6 +316,33 @@ certreq_payload_t *certreq_payload_create_type(certificate_type_t type)
 	return &this->public;
 }
 
+
+#ifdef VC_AUTH
+/*
+ * Described in header
+ */
+certreq_payload_t *certreq_vc_payload_create_type(verifiable_credential_type_t type)
+{
+	private_certreq_payload_t *this;
+
+	this = (private_certreq_payload_t*)
+					certreq_payload_create(PLV2_CERTREQ);
+	switch (type)
+	{
+		case VC_ANY:
+		case VC_DATA_MODEL_2_0:
+			this->encoding = ENC_VC;
+			break;
+		default:
+			DBG1(DBG_ENC, "verifiable credential type %N not supported in requests",
+				 vc_type_names, type);
+			free(this);
+			return NULL;
+	}
+	return &this->public;
+}
+#endif
+
 /*
  * Described in header
  */

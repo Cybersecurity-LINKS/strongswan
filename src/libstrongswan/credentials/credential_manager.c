@@ -131,6 +131,15 @@ typedef struct {
 	identification_t *other;
 } shared_data_t;
 
+#ifdef VC_AUTH
+/** data to pass to create_vc_enumerator */
+typedef struct {
+	private_credential_manager_t *this;
+	verifiable_credential_type_t type;
+	identification_t* vcid;
+} vc_data_t;
+#endif
+
 /** enumerator over local and global sets */
 typedef struct {
 	/** implements enumerator_t */
@@ -1439,6 +1448,46 @@ METHOD(credential_manager_t, destroy, void,
 	free(this);
 }
 
+#ifdef VC_AUTH
+/**
+ * cleanup function for verifiable credential
+ */
+static void destroy_vc_data(vc_data_t *data)
+{
+	data->this->lock->unlock(data->this->lock);
+	/* TODO */
+	/* Maybe I should free internal fields manually */
+	free(data);
+}
+
+/**
+ * enumerator constructor for verifiable credentials
+ */
+static enumerator_t *create_vc(credential_set_t *set, vc_data_t *data)
+{
+	return set->create_vc_enumerator(set, data->type, data->vcid);
+}
+
+/**
+ * Create an enumerator over vcs
+ */
+METHOD(credential_manager_t, create_vc_enumerator, enumerator_t*,
+	private_credential_manager_t *this, verifiable_credential_type_t vc, identification_t *vcid)
+{
+	vc_data_t *data;
+
+	INIT(data,
+		.this = this,
+		.type = vc,
+		.vcid = vcid,
+	);
+	this->lock->read_lock(this->lock);
+	return enumerator_create_nested(create_sets_enumerator(this),
+									(void*)create_vc, data,
+									(void*)destroy_vc_data);
+}
+#endif
+
 /*
  * see header file
  */
@@ -1469,6 +1518,9 @@ credential_manager_t *credential_manager_create()
 			.set_hook = _set_hook,
 			.call_hook = _call_hook,
 			.destroy = _destroy,
+#ifdef VC_AUTH
+			.create_vc_enumerator = _create_vc_enumerator,
+#endif
 		},
 		.sets = linked_list_create(),
 		.validators = linked_list_create(),

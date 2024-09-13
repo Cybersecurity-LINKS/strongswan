@@ -14,9 +14,9 @@ typedef enum verifiable_credential_type_t verifiable_credential_type_t;
 
 enum verifiable_credential_type_t {
     /** vc type wildcard */
-    VC_ANY              = 0,
+    VC_ANY              = 9,
     /** DATA MODEL 2.0 */
-    VC_DATA_MODEL_2_0   = 1,
+    VC_DATA_MODEL_2_0   = 10,
 };
 
 /**

@@ -29,6 +29,9 @@ typedef struct certreq_payload_t certreq_payload_t;
 #include <encoding/payloads/payload.h>
 #include <encoding/payloads/cert_payload.h>
 #include <utils/identification.h>
+#ifdef VC_AUTH
+#include <credentials/vcs/verifiable_credential.h>
+#endif
 
 /**
  * Class representing an IKEv1/IKEv2 CERTREQ payload.
@@ -97,5 +100,15 @@ certreq_payload_t *certreq_payload_create_type(certificate_type_t type);
  * @return 				certreq payload
  */
 certreq_payload_t *certreq_payload_create_dn(identification_t *id);
+
+#ifdef VC_AUTH
+/**
+ * Creates an empty IKEv2 certreq_payload_t for a kind of verifiable credentials.
+ *
+ * @param type			type of the verifiable credentials
+ * @return 				certreq payload
+ */
+certreq_payload_t *certreq_vc_payload_create_type(verifiable_credential_type_t type);
+#endif
 
 #endif /** CERTREQ_PAYLOAD_H_ @}*/
