@@ -46,6 +46,14 @@ ENUM(unique_policy_names, UNIQUE_NEVER, UNIQUE_KEEP,
 	"UNIQUE_KEEP",
 );
 
+#ifdef VC_AUTH
+ENUM(vc_policy_names, VC_ALWAYS_SEND, VC_NEVER_SEND,
+	"VC_ALWAYS_SEND",
+	"VC_SEND_IF_ASKED",
+	"VC_NEVER_SEND",
+);
+#endif
+
 typedef struct private_peer_cfg_t private_peer_cfg_t;
 
 /**

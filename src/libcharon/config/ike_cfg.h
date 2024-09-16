@@ -306,6 +306,10 @@ struct ike_cfg_create_t {
 	bool no_certreq;
 	/** TRUE to send OCSP status requests */
 	bool ocsp_certreq;
+#ifdef VC_AUTH
+	/** TRUE to send VC request */
+	bool vc_certreq;
+#endif
 	/** Enforce UDP encapsulation by faking NATD notify */
 	bool force_encap;
 	/** Use IKE fragmentation */
@@ -314,10 +318,6 @@ struct ike_cfg_create_t {
 	childless_t childless;
 	/** DSCP value to send IKE packets with */
 	uint8_t dscp;
-#ifdef VC_AUTH
-	/** TRUE to send VC request */
-	bool vc_certreq;
-#endif
 };
 
 /**

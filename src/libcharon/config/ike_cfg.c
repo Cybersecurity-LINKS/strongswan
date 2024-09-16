@@ -101,6 +101,13 @@ struct private_ike_cfg_t {
 	 */
 	bool ocsp_certreq;
 
+#ifdef VC_AUTH
+	/**
+	 * should we send a verifiable credential request?
+	 */
+	bool vc_certreq;
+#endif
+
 	/**
 	 * enforce UDP encapsulation
 	 */
@@ -125,13 +132,6 @@ struct private_ike_cfg_t {
 	 * List of proposals to use
 	 */
 	linked_list_t *proposals;
-
-#ifdef VC_AUTH
-	/**
-	 * should we send a verifiable credential request?
-	 */
-	bool vc_certreq;
-#endif
 };
 
 METHOD(ike_cfg_t, get_version, ike_version_t,
@@ -151,6 +151,14 @@ METHOD(ike_cfg_t, send_ocsp_certreq, bool,
 {
 	return this->ocsp_certreq;
 }
+
+#ifdef VC_AUTH
+METHOD(ike_cfg_t, send_vc_certreq, bool,
+	private_ike_cfg_t *this)
+{
+	return this->vc_certreq;
+}
+#endif
 
 METHOD(ike_cfg_t, force_encap_, bool,
 	private_ike_cfg_t *this)
@@ -447,14 +455,6 @@ METHOD(ike_cfg_t, destroy, void,
 		free(this);
 	}
 }
-
-#ifdef VC_AUTH
-METHOD(ike_cfg_t, send_vc_certreq, bool,
-	private_ike_cfg_t *this)
-{
-	return this->vc_certreq;
-}
-#endif
 
 /**
  * Try to parse a string as subnet

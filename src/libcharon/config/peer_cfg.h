@@ -27,6 +27,9 @@
 typedef enum cert_policy_t cert_policy_t;
 typedef enum ocsp_policy_t ocsp_policy_t;
 typedef enum unique_policy_t unique_policy_t;
+#ifdef VC_AUTH
+typedef enum vc_policy_t vc_policy_t;
+#endif
 typedef struct peer_cfg_t peer_cfg_t;
 typedef struct peer_cfg_create_t peer_cfg_create_t;
 
@@ -99,6 +102,25 @@ enum unique_policy_t {
  * enum strings for unique_policy_t
  */
 extern enum_name_t *unique_policy_names;
+
+#ifdef VC_AUTH
+/**
+ * VC sending policy.
+ */
+enum vc_policy_t {
+	/** always send VCs, even when not requested */
+	VC_ALWAYS_SEND =		0,
+	/** send VC upon VC request */
+	VC_SEND_IF_ASKED =	1,
+	/** never send a VC, even when requested */
+	VC_NEVER_SEND =		2,
+};
+
+/**
+ * enum strings for cert_policy_t
+ */
+extern enum_name_t *vc_policy_names;
+#endif
 
 /**
  * Configuration of a peer, specified by IDs.
