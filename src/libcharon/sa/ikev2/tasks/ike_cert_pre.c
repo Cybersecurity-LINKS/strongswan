@@ -107,11 +107,11 @@ static void process_certreq(private_ike_cert_pre_t *this,
 	}
 
 	this->ike_sa->set_condition(this->ike_sa, COND_CERTREQ_SEEN, TRUE);
-
-/* #ifdef VC_AUTH
+	
+#ifdef VC_AUTH
 	if (certreq->get_cert_type(certreq) != VC_ANY)
 	{
-		enumerator = certreq->create_keyid_enumerator(certreq);
+/* 		enumerator = certreq->create_keyid_enumerator(certreq);
 		while (enumerator->enumerate(enumerator, &keyid))
 		{
 			identification_t *id;
@@ -122,10 +122,10 @@ static void process_certreq(private_ike_cert_pre_t *this,
 										  VC_ANY, KEY_ANY, id, TRUE);
 		
 			// TODO
-		}
+		} */
 		return;
 	}
-#endif */
+#endif
 
 	if (certreq->get_cert_type(certreq) != CERT_X509)
 	{
@@ -527,8 +527,10 @@ static void add_certreq_ocsp(certreq_payload_t *req, certificate_t *cert)
 /**
  * add the DID Methods to the certificate request payload
  */
-static void add_certreq_vc(certreq_payload_t *req, verifiable_credential_t *vc)
-{
+static void add_certreq_vc(certreq_payload_t **req, verifiable_credential_t *vc)
+{	
+	*req = certreq_vc_payload_create_type(VC_ANY);
+
 	return;
 }
 #endif
@@ -610,13 +612,14 @@ static void build_certreqs(private_ike_cert_pre_t *this, message_t *message)
 	{
 		req = certreq_vc_payload_create_type(VC_ANY);
 
-		vc_enumerator = lib->credmgr->create_vc_enumerator(lib->credmgr,
+		/* vc_enumerator = lib->credmgr->create_vc_enumerator(lib->credmgr,
 													VC_ANY, NULL);
 		while (enumerator->enumerate(enumerator, &vc))
 		{
 			add_certreq_vc(req, vc);	
 		}
-		enumerator->destroy(enumerator);
+		enumerator->destroy(enumerator); */
+		add_certreq_vc(&req, vc);
 
 		message->add_payload(message, (payload_t*)req);
 	}
