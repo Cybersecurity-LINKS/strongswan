@@ -321,7 +321,7 @@ typedef struct {
 	cert_policy_t send_cert;
 	ocsp_policy_t ocsp;
 #ifdef VC_AUTH
-	vc_policy_t send_vc;
+	vc_policy_t vc;
 #endif
 	uint64_t dpd_delay;
 	uint64_t dpd_timeout;
@@ -436,7 +436,7 @@ static void log_peer_data(peer_data_t *data)
 	DBG2(DBG_CFG, "  send_cert = %N", cert_policy_names, data->send_cert);
 	DBG2(DBG_CFG, "  ocsp = %N", ocsp_policy_names, data->ocsp);
 #ifdef VC_AUTH
-	DBG2(DBG_CFG, "  send_vc = %N", vc_policy_names, data->send_vc);
+	DBG2(DBG_CFG, "  vc = %N", vc_policy_names, data->vc);
 #endif
 	DBG2(DBG_CFG, "  ppk_id = %Y",  data->ppk_id);
 	DBG2(DBG_CFG, "  ppk_required = %u",  data->ppk_required);
@@ -1739,13 +1739,14 @@ CALLBACK(parse_unique, bool,
 /**
  * Parse a vc_policy_t
  */
-CALLBACK(parse_send_vc, bool,
+CALLBACK(parse_vc, bool,
 	cert_policy_t *out, chunk_t v)
 {
 	enum_map_t map[] = {
-		{ "ifasked",	VC_SEND_IF_ASKED	},
-		{ "always",		VC_ALWAYS_SEND	},
-		{ "never",		VC_NEVER_SEND		},
+		{ "both",		VC_SEND_BOTH		},
+		{ "reply",		VC_SEND_REPLY		},
+		{ "request",	VC_SEND_REQUEST	    },
+		{ "never",		VC_SEND_NEVER		},
 	};
 	int d;
 
@@ -1939,7 +1940,7 @@ CALLBACK(peer_kv, bool,
 		{ "send_cert",		parse_send_cert,	&peer->send_cert			},
 		{ "ocsp",			parse_ocsp,			&peer->ocsp					},
 #ifdef VC_AUTH
-		{ "send_vc", 		parse_send_vc, 		&peer->send_vc				},
+		{ "vc", 			parse_vc, 			&peer->vc					},
 #endif
 		{ "keyingtries",	parse_uint32,		&peer->keyingtries			},
 		{ "unique",			parse_unique,		&peer->unique				},
@@ -2628,7 +2629,7 @@ CALLBACK(config_sn, bool,
 		.send_cert = CERT_SEND_IF_ASKED,
 		.ocsp = OCSP_SEND_REPLY,
 #ifdef VC_AUTH
-		.send_vc = VC_SEND_IF_ASKED,
+		.vc = VC_SEND_REPLY,
 #endif
 		.version = IKE_ANY,
 		.remote_port = IKEV2_UDP_PORT,
@@ -2781,7 +2782,8 @@ CALLBACK(config_sn, bool,
 		.ocsp_certreq = peer.ocsp == OCSP_SEND_BOTH ||
 						peer.ocsp == OCSP_SEND_REQUEST,
 #ifdef VC_AUTH
-		.vc_certreq = peer.send_vc,
+		.vc_certreq = peer.vc == VC_SEND_BOTH ||
+					  peer.vc == VC_SEND_REQUEST,
 #endif
 		.force_encap = peer.encap,
 		.fragmentation = peer.fragmentation,
@@ -2794,7 +2796,7 @@ CALLBACK(config_sn, bool,
 		.cert_policy = peer.send_cert,
 		.ocsp_policy = peer.ocsp,
 #ifdef VC_AUTH
-		.vc_policy = peer.send_vc,
+		.vc_policy = peer.vc,
 #endif
 		.unique = peer.unique,
 		.keyingtries = peer.keyingtries,

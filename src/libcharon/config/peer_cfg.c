@@ -47,10 +47,11 @@ ENUM(unique_policy_names, UNIQUE_NEVER, UNIQUE_KEEP,
 );
 
 #ifdef VC_AUTH
-ENUM(vc_policy_names, VC_ALWAYS_SEND, VC_NEVER_SEND,
-	"VC_ALWAYS_SEND",
-	"VC_SEND_IF_ASKED",
-	"VC_NEVER_SEND",
+ENUM(vc_policy_names, VC_SEND_REPLY, VC_SEND_NEVER,
+	"VC_SEND_REPLY",
+	"VC_SEND_REQUEST",
+	"VC_SEND_BOTH",
+	"VC_SEND_NEVER",
 );
 #endif
 

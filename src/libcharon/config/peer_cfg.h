@@ -108,12 +108,14 @@ extern enum_name_t *unique_policy_names;
  * VC sending policy.
  */
 enum vc_policy_t {
-	/** always send VCs, even when not requested */
-	VC_ALWAYS_SEND =		0,
 	/** send VC upon VC request */
-	VC_SEND_IF_ASKED =	1,
+	VC_SEND_REPLY =    0,
+	/** send VC request */
+	VC_SEND_REQUEST =  1,
+	/** VC request and reply */
+	VC_SEND_BOTH =     2,
 	/** never send a VC, even when requested */
-	VC_NEVER_SEND =		2,
+	VC_SEND_NEVER =		3,
 };
 
 /**
@@ -448,6 +450,10 @@ struct peer_cfg_create_t {
 	cert_policy_t cert_policy;
 	/** Whether to send OCSP status request/response */
 	ocsp_policy_t ocsp_policy;
+#ifdef VC_AUTH
+	/** Whether to send VC request */
+	vc_policy_t vc_policy;
+#endif
 	/** Uniqueness of an IKE_SA */
 	unique_policy_t unique;
 	/** How many keying tries should be done before giving up */

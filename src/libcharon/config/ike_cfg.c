@@ -621,6 +621,9 @@ ike_cfg_t *ike_cfg_create(ike_cfg_create_t *data)
 			.get_version = _get_version,
 			.send_certreq = _send_certreq,
 			.send_ocsp_certreq = _send_ocsp_certreq,
+#ifdef VC_AUTH
+			.send_vc_certreq = _send_vc_certreq,
+#endif
 			.force_encap = _force_encap_,
 			.fragmentation = _fragmentation,
 			.childless = _childless,
@@ -641,14 +644,14 @@ ike_cfg_t *ike_cfg_create(ike_cfg_create_t *data)
 			.equals = _equals,
 			.get_ref = _get_ref,
 			.destroy = _destroy,
-#ifdef VC_AUTH
-			.send_vc_certreq = _send_vc_certreq,
-#endif
 		},
 		.refcount = 1,
 		.version = data->version,
 		.certreq = !data->no_certreq,
 		.ocsp_certreq = data->ocsp_certreq,
+#ifdef VC_AUTH
+		.vc_certreq = data->vc_certreq,
+#endif
 		.force_encap = data->force_encap,
 		.fragmentation = data->fragmentation,
 		.childless = data->childless,
@@ -662,9 +665,6 @@ ike_cfg_t *ike_cfg_create(ike_cfg_create_t *data)
 		.other_port = data->remote_port,
 		.dscp = data->dscp,
 		.proposals = linked_list_create(),
-#ifdef VC_AUTH
-		.vc_certreq = data->vc_certreq,
-#endif
 	);
 
 	parse_addresses(data->local, this->my_hosts, this->my_ranges);
