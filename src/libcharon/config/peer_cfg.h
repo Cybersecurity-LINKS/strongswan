@@ -108,12 +108,14 @@ extern enum_name_t *unique_policy_names;
  * VC sending policy.
  */
 enum vc_policy_t {
-	/** always send VCs, even when not requested */
-	VC_ALWAYS_SEND =		0,
 	/** send VC upon VC request */
-	VC_SEND_IF_ASKED =	1,
+	VC_SEND_REPLY =    0,
+	/** send VC request */
+	VC_SEND_REQUEST =  1,
+	/** VC request and reply */
+	VC_SEND_BOTH =     2,
 	/** never send a VC, even when requested */
-	VC_NEVER_SEND =		2,
+	VC_NEVER_SEND =		3,
 };
 
 /**
