@@ -57,6 +57,15 @@ struct certreq_payload_t {
 	 */
 	certificate_type_t (*get_cert_type)(certreq_payload_t *this);
 
+#ifdef VC_AUTH
+	/**
+	 * Get the type of contained VC types.
+	 *
+	 * @return			VC type
+	 */
+	verifiable_credential_type_t (*get_vc_type)(certreq_payload_t *this);
+#endif
+
 	/**
 	 * Add a certificates keyid to the payload (IKEv2 only).
 	 *

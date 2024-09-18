@@ -109,7 +109,7 @@ static void process_certreq(private_ike_cert_pre_t *this,
 	this->ike_sa->set_condition(this->ike_sa, COND_CERTREQ_SEEN, TRUE);
 	
 #ifdef VC_AUTH
-	if (certreq->get_cert_type(certreq) != VC_ANY)
+	if (certreq->get_vc_type(certreq) != VC_ANY)
 	{
 /* 		enumerator = certreq->create_keyid_enumerator(certreq);
 		while (enumerator->enumerate(enumerator, &keyid))

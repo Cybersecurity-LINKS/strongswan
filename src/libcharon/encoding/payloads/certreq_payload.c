@@ -251,6 +251,20 @@ METHOD(certreq_payload_t, get_cert_type, certificate_type_t,
 	}
 }
 
+#ifdef VC_AUTH
+METHOD(certreq_payload_t, get_vc_type, verifiable_credential_type_t,
+	private_certreq_payload_t *this)
+{
+	switch (this->encoding)
+	{
+		case ENC_VC:
+			return VC_DATA_MODEL_2_0;
+		default:
+			return VC_ANY;
+	}
+}
+#endif
+
 METHOD2(payload_t, certreq_payload_t, destroy, void,
 	private_certreq_payload_t *this)
 {
@@ -279,6 +293,9 @@ certreq_payload_t *certreq_payload_create(payload_type_t type)
 			},
 			.create_keyid_enumerator = _create_keyid_enumerator,
 			.get_cert_type = _get_cert_type,
+#ifdef VC_AUTH
+			.get_vc_type = _get_vc_type,
+#endif
 			.add_keyid = _add_keyid,
 			.destroy = _destroy,
 			.get_dn = _get_dn,
