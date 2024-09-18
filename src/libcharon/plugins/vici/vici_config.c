@@ -1410,6 +1410,13 @@ CALLBACK(parse_auth, bool,
 		}
 		return TRUE;
 	}
+#ifdef VC_AUTH
+	if (strcasepfx(buf, "vc"))
+	{
+		cfg->add(cfg, AUTH_RULE_AUTH_CLASS, AUTH_CLASS_VC);
+		return TRUE;
+	}
+#endif
 	return FALSE;
 }
 
