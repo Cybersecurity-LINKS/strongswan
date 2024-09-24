@@ -62,6 +62,9 @@ static bool is_file_list_key(char *key)
 		"certs",
 		"cacerts",
 		"pubkeys"
+#ifdef VC_AUTH
+		, "vcs",
+#endif		
 	};
 	int i;
 
@@ -140,6 +143,15 @@ static bool add_file_list_key(vici_req_t *req, char *key, char *value)
 							 DIRECTORY_SEPARATOR, token);
 					token = buf;
 				}
+#ifdef VC_AUTH
+				else if (streq(key, "vcs"))
+				{
+					snprintf(buf, sizeof(buf), "%s%s%s%s%s", swanctl_dir,
+							 DIRECTORY_SEPARATOR, SWANCTL_VCDIR,
+							 DIRECTORY_SEPARATOR, token);
+					token = buf;
+				}
+#endif
 			}
 			map = chunk_map(token, FALSE);
 			if (map)

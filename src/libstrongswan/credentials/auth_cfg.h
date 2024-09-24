@@ -120,6 +120,11 @@ enum auth_rule_t {
 	/** certificatePolicy constraint, numerical OID as char* */
 	AUTH_RULE_CERT_POLICY,
 
+#ifdef VC_AUTH
+	/** subject verifiable credential, verifiable_credential_t* */
+	AUTH_RULE_SUBJECT_VC,
+#endif
+
 	/** intermediate certificate, certificate_t* */
 	AUTH_HELPER_IM_CERT,
 	/** subject certificate, certificate_t* */

@@ -1578,6 +1578,51 @@ CALLBACK(parse_pubkeys, bool,
 	return FALSE;
 }
 
+#ifdef VC_AUTH
+/**
+ * Add a vc as auth rule to config
+ */
+static bool add_vc(auth_data_t *auth, auth_rule_t rule, verifiable_credential_t *vc)
+{
+	vici_cred_t *cred;
+
+	/* cred = auth->request->this->cred;
+	vc = cred->add_vc(cred, vc); */
+
+	auth->cfg->add(auth->cfg, rule, vc);
+	return TRUE;
+}
+#endif
+
+#ifdef VC_AUTH
+/**
+ * Parse a verifiable credential; add as auth rule to config
+ */
+static bool parse_vc(auth_data_t *auth, auth_rule_t rule, chunk_t v)
+{
+	verifiable_credential_t *vc;
+
+	vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, VC_DATA_MODEL_2_0,
+							  BUILD_BLOB, v, BUILD_END);
+	if (vc)
+	{
+		return add_vc(auth, rule, vc);
+	}
+	return FALSE;
+}
+#endif
+
+#ifdef VC_AUTH
+/**
+ * Parse subject verifiable credentials
+ */
+CALLBACK(parse_vcs, bool,
+	auth_data_t *auth, chunk_t v)
+{
+	return parse_vc(auth, AUTH_RULE_SUBJECT_VC, v);
+}
+#endif
+
 /**
  * Parse revocation status
  */
@@ -1746,7 +1791,7 @@ CALLBACK(parse_unique, bool,
 /**
  * Parse a vc_policy_t
  */
-CALLBACK(parse_vc, bool,
+CALLBACK(parse_vcreq, bool,
 	cert_policy_t *out, chunk_t v)
 {
 	enum_map_t map[] = {
@@ -1890,6 +1935,9 @@ CALLBACK(auth_li, bool,
 		{ "certs",			parse_certs,		auth						},
 		{ "cacerts",		parse_cacerts,		auth						},
 		{ "pubkeys",		parse_pubkeys,		auth						},
+#ifdef VC_AUTH
+		{ "vcs",			parse_vcs,			auth 						},
+#endif
 	};
 
 	return parse_rules(rules, countof(rules), name, value,
@@ -1947,7 +1995,7 @@ CALLBACK(peer_kv, bool,
 		{ "send_cert",		parse_send_cert,	&peer->send_cert			},
 		{ "ocsp",			parse_ocsp,			&peer->ocsp					},
 #ifdef VC_AUTH
-		{ "vc", 			parse_vc, 			&peer->vc					},
+		{ "vc", 			parse_vcreq, 			&peer->vc				},
 #endif
 		{ "keyingtries",	parse_uint32,		&peer->keyingtries			},
 		{ "unique",			parse_unique,		&peer->unique				},

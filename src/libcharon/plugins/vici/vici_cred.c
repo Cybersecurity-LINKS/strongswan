@@ -627,6 +627,14 @@ METHOD(vici_cred_t, add_cert, certificate_t*,
 	return this->creds->add_cert_ref(this->creds, TRUE, cert);
 }
 
+/* #ifdef VC_AUTH
+METHOD(vici_cred_t, add_vc, verifiable_credential_t*,
+	private_vici_cred_t *this, verifiable_credential_t *vc)
+{
+	return this->creds->add_vc(this->creds, vc);
+}
+#endif
+ */
 METHOD(vici_cred_t, destroy, void,
 	private_vici_cred_t *this)
 {
@@ -657,6 +665,9 @@ vici_cred_t *vici_cred_create(vici_dispatcher_t *dispatcher,
 				.cache_cert = (void*)_cache_cert,
 			},
 			.add_cert = _add_cert,
+/* #ifdef VC_AUTH
+			.add_vc = _add_vc,
+#endif */
 			.destroy = _destroy,
 		},
 		.dispatcher = dispatcher,

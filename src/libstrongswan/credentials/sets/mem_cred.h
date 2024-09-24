@@ -73,6 +73,47 @@ struct mem_cred_t {
 	 */
 	certificate_t* (*get_cert_ref)(mem_cred_t *this, certificate_t *cert);
 
+#ifdef VC_AUTH
+	/**
+	 * Add a verifiable credential to the credential set.
+	 *
+	 * @param vc			vc, reference gets owned by set
+	 */
+	void (*add_vc)(mem_cred_t *this, verifiable_credential_t *vc);
+#endif
+#ifdef VC_AUTH
+	/**
+	 * Remove a verifiable credential from the credential set.
+	 *
+	 * @param vc			vc to remove
+	 * @return				TRUE if the key was found and removed
+	 */
+	bool (*remove_vc)(mem_cred_t *this,  verifiable_credential_t *vc);	
+#endif
+//#ifdef VC_AUTH
+	/**
+	 * Add a verifiable credential to the credential set, returning a reference to it or
+	 * to a cached duplicate.
+	 *
+	 * @param vc			verifiable credential, reference gets owned by set
+	 * @return				reference to verifiable credential or a previously cached duplicate
+	 */
+//	verifiable_credential_t *(*add_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
+//#endif
+//#ifdef VC_AUTH
+	/**
+	 * Get an existing reference to the same verifiable credential.
+	 *
+	 * Searches for the same verifiable credential in the set, and returns a reference
+	 * to it, destroying the passed verifiable credential. If the passed verifiable credential
+	 * is not found, it is just returned.
+	 *
+	 * @param vc			verifiable credential to look up
+	 * @return				the same verifiable credential, potentially different instance
+	 */
+//	verifiable_credential_t* (*get_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
+//#endif
+
 	/**
 	 * Add an X.509 CRL to the credential set.
 	 *
@@ -185,46 +226,6 @@ struct mem_cred_t {
 	 * Destroy a mem_cred_t.
 	 */
 	void (*destroy)(mem_cred_t *this);
-#ifdef VC_AUTH
-	/**
-	 * Add a verifiable credential to the credential set.
-	 *
-	 * @param vc			vc, reference gets owned by set
-	 */
-	void (*add_vc)(mem_cred_t *this, verifiable_credential_t *vc);
-#endif
-#ifdef VC_AUTH
-	/**
-	 * Remove a verifiable credential from the credential set.
-	 *
-	 * @param vc			vc to remove
-	 * @return				TRUE if the key was found and removed
-	 */
-	bool (*remove_vc)(mem_cred_t *this,  verifiable_credential_t *vc);	
-#endif
-//#ifdef VC_AUTH
-	/**
-	 * Add a verifiable credential to the credential set, returning a reference to it or
-	 * to a cached duplicate.
-	 *
-	 * @param vc			verifiable credential, reference gets owned by set
-	 * @return				reference to verifiable credential or a previously cached duplicate
-	 */
-//	verifiable_credential_t *(*add_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
-//#endif
-//#ifdef VC_AUTH
-	/**
-	 * Get an existing reference to the same verifiable credential.
-	 *
-	 * Searches for the same verifiable credential in the set, and returns a reference
-	 * to it, destroying the passed verifiable credential. If the passed verifiable credential
-	 * is not found, it is just returned.
-	 *
-	 * @param vc			verifiable credential to look up
-	 * @return				the same verifiable credential, potentially different instance
-	 */
-//	verifiable_credential_t* (*get_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
-//#endif
 };
 
 /**

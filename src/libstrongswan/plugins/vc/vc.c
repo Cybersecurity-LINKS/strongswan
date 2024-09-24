@@ -2,6 +2,7 @@
 #include "identity.h"
 #include <utils/utils/object.h>
 #include "./vc.h"
+#include <credentials/vcs/verifiable_credential.h>
 
 #include <asn1/oid.h>
 #include <asn1/asn1.h>
