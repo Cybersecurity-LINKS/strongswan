@@ -260,6 +260,13 @@ enum ike_condition_t {
 	 * An OCSP status request was received
 	 */
 	COND_OCSP_REQUEST = (1<<15),
+
+#ifdef VC_AUTH
+	/**
+	 * received a vc request from the peer
+	 */
+	COND_VCREQ_SEEN = (1<<16),
+#endif
 };
 
 /**

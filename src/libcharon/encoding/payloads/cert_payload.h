@@ -132,6 +132,18 @@ cert_payload_t *cert_payload_create(payload_type_t type);
 cert_payload_t *cert_payload_create_from_cert(payload_type_t type,
 											  certificate_t *cert);
 
+#ifdef VC_AUTH
+/**
+ * Creates a certificate payload with an embedded verifiable credential.
+ *
+ * @param type				payload type (for IKEv1 or IKEv2)
+ * @param vc				vc to embed
+ * @return					cert_payload_t object
+ */
+cert_payload_t *cert_payload_create_from_vc(payload_type_t type,
+											  verifiable_credential_t *vc);
+#endif
+
 /**
  * Creates an IKEv2 certificate payload with hash and URL encoding.
  *

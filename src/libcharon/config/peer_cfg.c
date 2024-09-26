@@ -47,11 +47,10 @@ ENUM(unique_policy_names, UNIQUE_NEVER, UNIQUE_KEEP,
 );
 
 #ifdef VC_AUTH
-ENUM(vc_policy_names, VC_SEND_REPLY, VC_SEND_NEVER,
-	"VC_SEND_REPLY",
-	"VC_SEND_REQUEST",
-	"VC_SEND_BOTH",
-	"VC_SEND_NEVER",
+ENUM(vc_policy_names, VC_ALWAYS_SEND, VC_NEVER_SEND,
+	"VC_ALWAYS_SEND",
+	"VC_SEND_IF_ASKED",
+	"VC_NEVER_SEND",
 );
 #endif
 
@@ -101,6 +100,13 @@ struct private_peer_cfg_t {
 	 * should we send OCSP status request/response
 	 */
 	ocsp_policy_t ocsp_policy;
+
+#ifdef VC_AUTH
+	/**
+	 * should we send a verifiable credential
+	 */
+	vc_policy_t vc_policy;
+#endif
 
 	/**
 	 * uniqueness of an IKE_SA
@@ -522,6 +528,14 @@ METHOD(peer_cfg_t, get_ocsp_policy, ocsp_policy_t,
 	return this->ocsp_policy;
 }
 
+#ifdef VC_AUTH
+METHOD(peer_cfg_t, get_vc_policy, vc_policy_t,
+	private_peer_cfg_t *this)
+{
+	return this->vc_policy;
+}
+#endif
+
 METHOD(peer_cfg_t, get_unique_policy, unique_policy_t,
 	private_peer_cfg_t *this)
 {
@@ -769,6 +783,9 @@ METHOD(peer_cfg_t, equals, bool,
 		get_ike_version(this) == get_ike_version(other) &&
 		this->cert_policy == other->cert_policy &&
 		this->ocsp_policy == other->ocsp_policy &&
+#ifdef VC_AUTH
+		this->vc_policy == other->vc_policy &&
+#endif
 		this->unique == other->unique &&
 		this->keyingtries == other->keyingtries &&
 		this->use_mobike == other->use_mobike &&
@@ -857,6 +874,9 @@ peer_cfg_t *peer_cfg_create(char *name, ike_cfg_t *ike_cfg,
 			.select_child_cfg = _select_child_cfg,
 			.get_cert_policy = _get_cert_policy,
 			.get_ocsp_policy = _get_ocsp_policy,
+#ifdef VC_AUTH
+			.get_vc_policy = _get_vc_policy,
+#endif
 			.get_unique_policy = _get_unique_policy,
 			.get_keyingtries = _get_keyingtries,
 			.get_rekey_time = _get_rekey_time,
@@ -891,6 +911,9 @@ peer_cfg_t *peer_cfg_create(char *name, ike_cfg_t *ike_cfg,
 		.lock = rwlock_create(RWLOCK_TYPE_DEFAULT),
 		.cert_policy = data->cert_policy,
 		.ocsp_policy = data->ocsp_policy,
+#ifdef VC_AUTH
+		.vc_policy = data->vc_policy,
+#endif
 		.unique = data->unique,
 		.keyingtries = data->keyingtries,
 		.rekey_time = data->rekey_time,

@@ -3,6 +3,7 @@
 #define VERIFIABLE_CREDENTIAL_H_
 
 #include <utils/identification.h>
+#include <credentials/cred_encoding.h>
 
 typedef struct verifiable_credential_t verifiable_credential_t;
 
@@ -25,6 +26,23 @@ enum verifiable_credential_type_t {
 extern enum_name_t *vc_type_names;
 
 struct verifiable_credential_t {
+
+    /**
+	 * Get the type of the verifiable credential.
+	 *
+	 * @return			verifiable credential type
+	 */
+	verifiable_credential_type_t (*get_type)(verifiable_credential_t *this);
+
+    /**
+	 * Get the verifiable credential in an encoded form as a chunk.
+	 *
+	 * @param type		type of the encoding, one of VC_*
+	 * @param encoding	encoding of the key, allocated
+	 * @return			TRUE if encoding supported
+	 */
+	bool (*get_encoding)(verifiable_credential_t *this, cred_encoding_type_t type,
+						 chunk_t *encoding);
 
     /**
      * Initializes the wallet

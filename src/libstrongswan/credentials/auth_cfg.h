@@ -45,10 +45,10 @@ enum auth_class_t {
 	AUTH_CLASS_EAP = 3,
 	/** authentication using IKEv1 XAUTH */
 	AUTH_CLASS_XAUTH = 4,
-#ifdef VC_AUTH
+//#ifdef VC_AUTH
 	/** authentication using VC */
-	AUTH_CLASS_VC = 5,
-#endif
+	//AUTH_CLASS_VC = 5,
+//#endif
 };
 
 /**

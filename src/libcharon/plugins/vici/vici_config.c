@@ -315,13 +315,16 @@ typedef struct {
 	bool encap;
 	bool mobike;
 	bool send_certreq;
+#ifdef VC_AUTH
+	bool send_vcreq;
+#endif
 	bool pull;
 	identification_t *ppk_id;
 	bool ppk_required;
 	cert_policy_t send_cert;
 	ocsp_policy_t ocsp;
 #ifdef VC_AUTH
-	vc_policy_t vc;
+	vc_policy_t send_vc;
 #endif
 	uint64_t dpd_delay;
 	uint64_t dpd_timeout;
@@ -433,11 +436,14 @@ static void log_peer_data(peer_data_t *data)
 	DBG2(DBG_CFG, "  local_port = %u", data->local_port);
 	DBG2(DBG_CFG, "  remote_port = %u", data->remote_port);
 	DBG2(DBG_CFG, "  send_certreq = %u", data->send_certreq);
-	DBG2(DBG_CFG, "  send_cert = %N", cert_policy_names, data->send_cert);
-	DBG2(DBG_CFG, "  ocsp = %N", ocsp_policy_names, data->ocsp);
 #ifdef VC_AUTH
-	DBG2(DBG_CFG, "  vc = %N", vc_policy_names, data->vc);
+	DBG2(DBG_CFG, "  send_vcreq = %u", data->send_vcreq);
 #endif
+	DBG2(DBG_CFG, "  send_cert = %N", cert_policy_names, data->send_cert);
+#ifdef VC_AUTH
+	DBG2(DBG_CFG, "  send_vc = %N", vc_policy_names, data->send_vc);
+#endif
+	DBG2(DBG_CFG, "  ocsp = %N", ocsp_policy_names, data->ocsp);
 	DBG2(DBG_CFG, "  ppk_id = %Y",  data->ppk_id);
 	DBG2(DBG_CFG, "  ppk_required = %u",  data->ppk_required);
 	DBG2(DBG_CFG, "  mobike = %u", data->mobike);
@@ -1410,13 +1416,13 @@ CALLBACK(parse_auth, bool,
 		}
 		return TRUE;
 	}
-#ifdef VC_AUTH
+/* #ifdef VC_AUTH
 	if (strcasepfx(buf, "vc"))
 	{
 		cfg->add(cfg, AUTH_RULE_AUTH_CLASS, AUTH_CLASS_VC);
 		return TRUE;
 	}
-#endif
+#endif */
 	return FALSE;
 }
 
@@ -1791,14 +1797,13 @@ CALLBACK(parse_unique, bool,
 /**
  * Parse a vc_policy_t
  */
-CALLBACK(parse_vcreq, bool,
+CALLBACK(parse_send_vc, bool,
 	cert_policy_t *out, chunk_t v)
 {
 	enum_map_t map[] = {
-		{ "both",		VC_SEND_BOTH		},
-		{ "reply",		VC_SEND_REPLY		},
-		{ "request",	VC_SEND_REQUEST	    },
-		{ "never",		VC_SEND_NEVER		},
+		{ "ifasked",	VC_SEND_IF_ASKED	},
+		{ "always",		VC_ALWAYS_SEND	    },
+		{ "never",		VC_NEVER_SEND		},
 	};
 	int d;
 
@@ -1992,11 +1997,14 @@ CALLBACK(peer_kv, bool,
 		{ "fragmentation",	parse_frag,			&peer->fragmentation		},
 		{ "childless",		parse_childless,	&peer->childless			},
 		{ "send_certreq",	parse_bool,			&peer->send_certreq			},
-		{ "send_cert",		parse_send_cert,	&peer->send_cert			},
-		{ "ocsp",			parse_ocsp,			&peer->ocsp					},
 #ifdef VC_AUTH
-		{ "vc", 			parse_vcreq, 			&peer->vc				},
+		{ "send_vcreq", 	parse_bool, 		&peer->send_vcreq		    },
 #endif
+		{ "send_cert",		parse_send_cert,	&peer->send_cert			},
+#ifdef VC_AUTH
+		{ "send_vc",		parse_send_vc,	    &peer->send_vc				},
+#endif
+		{ "ocsp",			parse_ocsp,			&peer->ocsp					},
 		{ "keyingtries",	parse_uint32,		&peer->keyingtries			},
 		{ "unique",			parse_unique,		&peer->unique				},
 		{ "local_port",		parse_uint32,		&peer->local_port			},
@@ -2682,10 +2690,10 @@ CALLBACK(config_sn, bool,
 		.send_certreq = TRUE,
 		.pull = TRUE,
 		.send_cert = CERT_SEND_IF_ASKED,
-		.ocsp = OCSP_SEND_REPLY,
 #ifdef VC_AUTH
-		.vc = VC_SEND_REPLY,
+		.send_vc = VC_SEND_IF_ASKED,
 #endif
+		.ocsp = OCSP_SEND_REPLY,
 		.version = IKE_ANY,
 		.remote_port = IKEV2_UDP_PORT,
 		.fragmentation = FRAGMENTATION_YES,
@@ -2837,8 +2845,7 @@ CALLBACK(config_sn, bool,
 		.ocsp_certreq = peer.ocsp == OCSP_SEND_BOTH ||
 						peer.ocsp == OCSP_SEND_REQUEST,
 #ifdef VC_AUTH
-		.vc_certreq = peer.vc == VC_SEND_BOTH ||
-					  peer.vc == VC_SEND_REQUEST,
+		.vc_certreq = peer.send_vcreq,
 #endif
 		.force_encap = peer.encap,
 		.fragmentation = peer.fragmentation,
@@ -2851,7 +2858,7 @@ CALLBACK(config_sn, bool,
 		.cert_policy = peer.send_cert,
 		.ocsp_policy = peer.ocsp,
 #ifdef VC_AUTH
-		.vc_policy = peer.vc,
+		.vc_policy = peer.send_vc,
 #endif
 		.unique = peer.unique,
 		.keyingtries = peer.keyingtries,

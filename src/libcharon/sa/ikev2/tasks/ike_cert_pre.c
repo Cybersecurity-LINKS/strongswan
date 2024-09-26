@@ -105,13 +105,12 @@ static void process_certreq(private_ike_cert_pre_t *this,
 		enumerator->destroy(enumerator);
 		return;
 	}
-
-	this->ike_sa->set_condition(this->ike_sa, COND_CERTREQ_SEEN, TRUE);
 	
 #ifdef VC_AUTH
-	if (certreq->get_vc_type(certreq) != VC_ANY)
+	if (certreq->get_vc_type(certreq) == VC_DATA_MODEL_2_0)
 	{
-/* 		enumerator = certreq->create_keyid_enumerator(certreq);
+		this->ike_sa->set_condition(this->ike_sa, COND_VCREQ_SEEN, TRUE);
+	/*  enumerator = certreq->create_keyid_enumerator(certreq);
 		while (enumerator->enumerate(enumerator, &keyid))
 		{
 			identification_t *id;
@@ -126,6 +125,8 @@ static void process_certreq(private_ike_cert_pre_t *this,
 		return;
 	}
 #endif
+
+	this->ike_sa->set_condition(this->ike_sa, COND_CERTREQ_SEEN, TRUE);
 
 	if (certreq->get_cert_type(certreq) != CERT_X509)
 	{
@@ -610,7 +611,7 @@ static void build_certreqs(private_ike_cert_pre_t *this, message_t *message)
 #ifdef VC_AUTH
 	if (ike_cfg->send_vc_certreq(ike_cfg))
 	{
-		req = certreq_vc_payload_create_type(VC_ANY);
+		req = certreq_vc_payload_create_type(VC_DATA_MODEL_2_0);
 
 		/* vc_enumerator = lib->credmgr->create_vc_enumerator(lib->credmgr,
 													VC_ANY, NULL);

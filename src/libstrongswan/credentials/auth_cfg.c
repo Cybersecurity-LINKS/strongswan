@@ -93,6 +93,9 @@ static inline bool is_multi_value_rule(auth_rule_t type)
 		case AUTH_RULE_CRL_VALIDATION:
 		case AUTH_RULE_GROUP:
 		case AUTH_RULE_SUBJECT_CERT:
+#ifdef VC_AUTH
+		case AUTH_RULE_SUBJECT_VC:
+#endif
 		case AUTH_RULE_CA_IDENTITY:
 		case AUTH_RULE_CA_CERT:
 		case AUTH_RULE_IM_CERT:
@@ -236,6 +239,9 @@ static void init_entry(entry_t *this, auth_rule_t type, va_list args)
 		case AUTH_RULE_CA_CERT:
 		case AUTH_RULE_IM_CERT:
 		case AUTH_RULE_SUBJECT_CERT:
+#ifdef VC_AUTH
+		case AUTH_RULE_SUBJECT_VC:
+#endif
 		case AUTH_RULE_CERT_POLICY:
 		case AUTH_RULE_SIGNATURE_SCHEME:
 		case AUTH_RULE_IKE_SIGNATURE_SCHEME:

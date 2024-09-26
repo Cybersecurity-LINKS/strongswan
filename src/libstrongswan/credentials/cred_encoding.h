@@ -100,6 +100,9 @@ enum cred_encoding_type_t {
 	/** PGP Packet encoded certificate */
 	CERT_PGP_PKT,
 
+	/* DER encoded VC */
+	VC_ASN1_DER,
+
 	CRED_ENCODING_MAX,
 };
 

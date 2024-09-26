@@ -32,6 +32,37 @@ struct private_vc_t {
 	refcount_t ref;
 };
 
+METHOD(verifiable_credential_t, get_type, verifiable_credential_type_t,
+	private_vc_t *this)
+{
+	return VC_DATA_MODEL_2_0;
+}
+
+METHOD(verifiable_credential_t, get_encoding, bool,
+	private_vc_t *this, cred_encoding_type_t type, chunk_t *encoding)
+{
+	/* This is the code used in cert->get_type, let's do it a little different */
+    /* if (type == VC_ASN1_DER)
+	{
+		*encoding = chunk_clone(this->encoding);
+		return TRUE;
+	}
+
+	return lib->encoding->encode(lib->encoding, type, NULL, encoding,
+						CRED_PART_X509_ASN1_DER, this->encoding, CRED_PART_END); */
+    if (type == VC_ASN1_DER)
+    {   
+        char *jwt;
+        jwt = get_vc(this->vc_oe);
+        encoding->ptr = jwt;
+        encoding->len = strlen(jwt);
+        /* Maybe I should encode it in DER format */
+        return TRUE;
+    }
+
+    return false;
+}
+
 METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const char *stronghold_path, const char *password) {
     this->w = setup("ciao", "ciao");
 
@@ -84,6 +115,8 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
     INIT(this,
         .public = {
             .vc = {
+                .get_type = _get_type,
+                .get_encoding = _get_encoding,
                 .wallet_setup = _wallet_setup,
                 .equals = verifiable_credential_equals,
                 .destroy = _destroy,
@@ -100,10 +133,11 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
         return NULL; */
 
     this->vc_oe = set_vc(jwt.ptr);
-    if (this->vc_oe != NULL)
+    if (this->vc_oe != NULL) 
+    {
         printf("This is the loaded vc: %s\n", get_vc(this->vc_oe));
-        return &this->public;
-    
+        return &this->public; 
+    }
 
     return NULL;
 }

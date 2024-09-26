@@ -362,6 +362,39 @@ cert_payload_t *cert_payload_create_from_cert(payload_type_t type,
 	return &this->public;
 }
 
+#ifdef VC_AUTH
+/*
+ * Described in header
+ */
+cert_payload_t *cert_payload_create_from_vc(payload_type_t type,
+											  verifiable_credential_t *vc)
+{
+	private_cert_payload_t *this;
+
+	this = (private_cert_payload_t*)cert_payload_create(type);
+	switch (vc->get_type(vc))
+	{
+		case VC_DATA_MODEL_2_0:
+			this->encoding = ENC_VC;
+			break;
+		default:
+			DBG1(DBG_ENC, "embedding %N vc in payload failed",
+				 vc_type_names, vc->get_type(vc));
+			free(this);
+			return NULL;
+	}
+	if (!vc->get_encoding(vc, CERT_ASN1_DER, &this->data))
+	{
+		DBG1(DBG_ENC, "encoding vc for cert payload failed");
+		free(this);
+		return NULL;
+	}
+	this->payload_length = get_header_length(this) + this->data.len;
+
+	return &this->public;
+}
+#endif
+
 /*
  * Described in header
  */

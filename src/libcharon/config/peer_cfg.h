@@ -108,14 +108,12 @@ extern enum_name_t *unique_policy_names;
  * VC sending policy.
  */
 enum vc_policy_t {
-	/** send VC upon VC request */
-	VC_SEND_REPLY =    0,
-	/** send VC request */
-	VC_SEND_REQUEST =  1,
-	/** VC request and reply */
-	VC_SEND_BOTH =     2,
-	/** never send a VC, even when requested */
-	VC_SEND_NEVER =		3,
+	/** always send vcs, even when not requested */
+	VC_ALWAYS_SEND =		0,
+	/** send vc upon vc request */
+	VC_SEND_IF_ASKED =	1,
+	/** never send a vc, even when requested */
+	VC_NEVER_SEND =		2,
 };
 
 /**
@@ -263,6 +261,15 @@ struct peer_cfg_t {
 	 * @return			OCSP sending policy
 	 */
 	ocsp_policy_t (*get_ocsp_policy) (peer_cfg_t *this);
+
+#ifdef VC_AUTH
+	/**
+	 * Should a VC be sent for this connection?
+	 *
+	 * @return			VC sending policy
+	 */
+	vc_policy_t (*get_vc_policy) (peer_cfg_t *this);
+#endif
 
 	/**
 	 * How to handle uniqueness of IKE_SAs?

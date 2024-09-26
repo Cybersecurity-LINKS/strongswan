@@ -275,6 +275,35 @@ static void add_cert_ocsp(private_ike_cert_post_t *this, auth_cfg_t *auth,
 	enumerator->destroy(enumerator);
 }
 
+#ifdef VC_AUTH
+/**
+ * Add Verifiable Credential to message
+ */
+static bool 
+add_cert_vc(private_ike_cert_post_t *this, auth_cfg_t *auth,
+						  message_t *message)
+{
+	auth_rule_t type;
+	cert_payload_t *payload;
+	verifiable_credential_t *vc;
+	enumerator_t *enumerator;
+
+	vc = auth->get(auth, AUTH_RULE_SUBJECT_VC);
+	if (!vc)
+	{
+		return FALSE;
+	}
+	payload = cert_payload_create_from_vc(PLV2_CERTIFICATE, vc);
+	if (!payload)
+	{
+		return FALSE;
+	}
+	DBG1(DBG_IKE, "sending end entity vc");
+	message->add_payload(message, (payload_t*)payload);
+	return TRUE;
+}
+#endif
+
 /**
  * add certificates to message
  */
@@ -327,6 +356,23 @@ static void build_certs(private_ike_cert_post_t *this, message_t *message)
 			}
 			break;
 	}
+#ifdef VC_AUTH
+	switch (peer_cfg->get_vc_policy(peer_cfg))
+	{
+		case VC_NEVER_SEND:
+			break;
+		case VC_SEND_IF_ASKED:
+			if (!this->ike_sa->has_condition(this->ike_sa, COND_VCREQ_SEEN))
+			{
+				break;
+			}
+			/* FALL */
+		case VC_ALWAYS_SEND:
+			auth = this->ike_sa->get_auth_cfg(this->ike_sa, TRUE);
+			add_cert_vc(this, auth, message); 
+		break;
+	}
+#endif
 }
 
 METHOD(task_t, build_i, status_t,
