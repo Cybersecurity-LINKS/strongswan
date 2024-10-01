@@ -76,6 +76,15 @@ struct cert_payload_t {
 	 */
 	certificate_t *(*get_cert)(cert_payload_t *this);
 
+#ifdef VC_AUTH
+	/**
+	 * Get the payloads encoded verifiable credential.
+	 *
+	 * @return				verifiable credential copy
+	 */
+	verifiable_credential_t *(*get_vc)(cert_payload_t *this);
+#endif
+
 	/**
 	 * Get the payloads certificate container.
 	 *

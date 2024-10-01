@@ -367,6 +367,29 @@ static void process_ac(cert_payload_t *payload, auth_cfg_t *auth)
 	}
 }
 
+#ifdef VC_AUTH
+static void process_vc(cert_payload_t *payload, auth_cfg_t *auth,
+						 ike_cfg_t *ike_cfg) 
+{
+	verifiable_credential_t *vc;
+
+	if(!ike_cfg->send_vc_certreq(ike_cfg)) 
+	{
+		DBG1(DBG_IKE, "received VC, but we didn't request any, "
+			 "ignore");
+		return;
+	}
+
+	vc = payload->get_vc(payload);
+	if (vc)
+	{
+		DBG1(DBG_IKE, "received VC");
+		auth->add(auth, AUTH_HELPER_SUBJECT_VC, vc);
+	}
+	return;
+}
+#endif
+
 /**
  * Process certificate payloads
  */
@@ -413,6 +436,12 @@ static void process_certs(private_ike_cert_pre_t *this, message_t *message)
 				case ENC_X509_ATTRIBUTE:
 					process_ac(cert_payload, auth);
 					break;
+#ifdef VC_AUTH
+				case ENC_VC:
+					process_vc(cert_payload, auth,
+								 this->ike_sa->get_ike_cfg(this->ike_sa));
+					break;
+#endif
 				case ENC_PKCS7_WRAPPED_X509:
 				case ENC_PGP:
 				case ENC_DNS_SIGNED_KEY:

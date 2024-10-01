@@ -240,6 +240,25 @@ METHOD(cert_payload_t, get_cert, certificate_t*,
 							  BUILD_BLOB_ASN1_DER, this->data, BUILD_END);
 }
 
+#ifdef VC_AUTH
+METHOD(cert_payload_t, get_vc, verifiable_credential_t*,
+	private_cert_payload_t *this)
+{	
+	int type;
+
+	switch (this->encoding)
+	{
+		case ENC_VC:
+			type = VC_DATA_MODEL_2_0;
+			break;
+		default:
+			return NULL;
+	}
+	return lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, type,
+							  BUILD_BLOB_ASN1_DER, this->data, BUILD_END);
+}
+#endif
+
 METHOD(cert_payload_t, get_container, container_t*,
 	private_cert_payload_t *this)
 {
@@ -312,6 +331,9 @@ cert_payload_t *cert_payload_create(payload_type_t type)
 				.destroy = _destroy,
 			},
 			.get_cert = _get_cert,
+#ifdef VC_AUTH
+			.get_vc = _get_vc,
+#endif
 			.get_container = _get_container,
 			.get_cert_encoding = _get_cert_encoding,
 			.get_hash = _get_hash,

@@ -251,6 +251,9 @@ static void init_entry(entry_t *this, auth_rule_t type, va_list args)
 		case AUTH_HELPER_SUBJECT_HASH_URL:
 		case AUTH_HELPER_REVOCATION_CERT:
 		case AUTH_HELPER_AC_CERT:
+#ifdef VC_AUTH
+		case AUTH_HELPER_SUBJECT_VC:
+#endif
 			/* pointer type */
 			this->value = va_arg(args, void*);
 			break;
