@@ -71,6 +71,13 @@ METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const ch
     return FALSE;
 }
 
+METHOD(verifiable_credential_t, get_ref, verifiable_credential_t*,
+	private_vc_t *this)
+{
+	ref_get(&this->ref);
+	return &this->public.vc;
+}
+
 METHOD(verifiable_credential_t, destroy, void,
 	private_vc_t *this)
 {
@@ -119,6 +126,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
                 .get_encoding = _get_encoding,
                 .wallet_setup = _wallet_setup,
                 .equals = verifiable_credential_equals,
+                .get_ref = _get_ref,
                 .destroy = _destroy,
             },
         }, 

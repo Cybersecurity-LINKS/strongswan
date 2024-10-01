@@ -61,6 +61,13 @@ struct verifiable_credential_t {
 	 */
 	bool (*equals) (verifiable_credential_t *this, verifiable_credential_t *other);
 
+	/**
+	 * Get a new reference to the vc.
+	 *
+	 * @return			this, with an increased refcount
+	 */
+	verifiable_credential_t* (*get_ref)(verifiable_credential_t *this);
+
     /**
 	 * Decrease refcount, destroy verifiable_credential if no more references.
 	 */
@@ -75,6 +82,18 @@ struct verifiable_credential_t {
  * @return				TRUE if this is equal to other
  */
 bool verifiable_credential_equals(verifiable_credential_t *vc, verifiable_credential_t *other);
+
+/**
+ * Check if the given VC matches the given type and identity,
+ * all of which are optional.
+ *
+ *
+ * @param vc			verifiable credential
+ * @param type			vc type to match, or VC_ANY
+ * @param id			identity to match, or NULL
+ */
+bool vc_matches(verifiable_credential_t *vc, verifiable_credential_type_t type,
+						 identification_t *id);
 
 #endif
 #endif

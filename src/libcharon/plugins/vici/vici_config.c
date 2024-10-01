@@ -1592,8 +1592,8 @@ static bool add_vc(auth_data_t *auth, auth_rule_t rule, verifiable_credential_t 
 {
 	vici_cred_t *cred;
 
-	/* cred = auth->request->this->cred;
-	vc = cred->add_vc(cred, vc); */
+	cred = auth->request->this->cred;
+	vc = cred->add_vc(cred, vc);
 
 	auth->cfg->add(auth->cfg, rule, vc);
 	return TRUE;

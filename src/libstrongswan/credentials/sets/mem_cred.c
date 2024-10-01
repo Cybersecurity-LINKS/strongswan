@@ -198,10 +198,107 @@ METHOD(mem_cred_t, get_cert_ref, certificate_t*,
 }
 
 #ifdef VC_AUTH
+/**
+ * Data for the vc enumerator
+ */
+typedef struct {
+	rwlock_t *lock;
+	verifiable_credential_type_t vc;
+	identification_t *id;
+} vc_data_t;
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(vc_data_destroy, void,
+	vc_data_t *data)
+{
+	data->lock->unlock(data->lock);
+	free(data);
+}
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(vc_filter, bool,
+	vc_data_t *data, enumerator_t *orig, va_list args)
+{
+	verifiable_credential_t *vc, **out;
+
+	VA_ARGS_VGET(args, out);
+
+	while (orig->enumerate(orig, &vc))
+	{
+		if (vc_matches(vc, data->vc, data->id))
+		{
+			*out = vc;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+#endif
+
+#ifdef VC_AUTH
+METHOD(credential_set_t, create_vc_enumerator, enumerator_t*,
+	private_mem_cred_t *this, verifiable_credential_type_t vc, identification_t *id)
+{
+	vc_data_t *data;
+	enumerator_t *enumerator;
+
+	INIT(data,
+		.lock = this->lock,
+		.vc = vc,
+		.id = id,
+	);
+	this->lock->read_lock(this->lock);
+
+	enumerator = this->vcs->create_enumerator(this->vcs);
+
+	return enumerator_create_filter(enumerator, vc_filter, data,
+									vc_data_destroy);
+}
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(vc_equals, bool,
+	verifiable_credential_t *item, va_list args)
+{
+	verifiable_credential_t *vc;
+
+	VA_ARGS_VGET(args, vc);
+	return item->equals(item, vc);
+}
+#endif
+
+#ifdef VC_AUTH
+/**
+ * Add a VC the the cache. Returns a reference to "vc" or a
+ * previously cached certificate that equals "vc".
+ */
+static verifiable_credential_t *add_vc_internal(private_mem_cred_t *this,
+										verifiable_credential_t *vc)
+{
+	verifiable_credential_t *cached;
+	this->lock->write_lock(this->lock);
+	if (this->vcs->find_first(this->vcs, vc_equals,
+									(void**)&cached, vc))
+	{
+		vc->destroy(vc);
+		vc = cached->get_ref(cached);
+	}
+	else
+	{
+		this->vcs->insert_first(this->vcs, vc->get_ref(vc));
+	}
+	this->lock->unlock(this->lock);
+	return vc;
+}
+#endif
+
+#ifdef VC_AUTH
 METHOD(mem_cred_t, add_vc, void,
 	private_mem_cred_t *this, verifiable_credential_t *vc)
 {
-	enumerator_t *enumerator;
+	/* enumerator_t *enumerator;
 	verifiable_credential_t *current;
 
 	this->lock->write_lock(this->lock);
@@ -220,11 +317,13 @@ METHOD(mem_cred_t, add_vc, void,
 
 	this->vcs->insert_first(this->vcs, vc);
 
-	this->lock->unlock(this->lock);
+	this->lock->unlock(this->lock); */
+	verifiable_credential_t *cached = add_vc_internal(this, vc);
+	cached->destroy(cached);
 }
 #endif
 
-#ifdef VC_AUTH
+/* #ifdef VC_AUTH
 METHOD(mem_cred_t, remove_vc, bool,
 	private_mem_cred_t *this, verifiable_credential_t *vc)
 {
@@ -250,34 +349,34 @@ METHOD(mem_cred_t, remove_vc, bool,
 	this->lock->unlock(this->lock);
 	return found;
 }
-#endif
+#endif */
 
-/* #ifdef VC_AUTH
+#ifdef VC_AUTH
 METHOD(mem_cred_t, add_vc_ref, verifiable_credential_t*,
 	private_mem_cred_t *this, verifiable_credential_t *vc)
 {
 	return add_vc_internal(this, vc);
 }
-#endif */
+#endif
 
-/* #ifdef VC_AUTH
+#ifdef VC_AUTH
 METHOD(mem_cred_t, get_vc_ref, verifiable_credential_t*,
 	private_mem_cred_t *this, verifiable_credential_t *vc)
 {
 	verifiable_credential_t *cached;
 
 	this->lock->read_lock(this->lock);
-	if (this->untrusted->find_first(this->untrusted, certificate_equals,
-									(void**)&cached, cert))
+	if (this->vcs->find_first(this->vcs, vc_equals,
+									(void**)&cached, vc))
 	{
-		cert->destroy(cert);
+		vc->destroy(vc);
 		vc = cached->get_ref(cached);
 	}
 	this->lock->unlock(this->lock);
 
 	return vc;
 }
-#endif */
+#endif
 
 METHOD(mem_cred_t, add_crl, bool,
 	private_mem_cred_t *this, crl_t *crl)
@@ -1006,7 +1105,9 @@ mem_cred_t *mem_cred_create()
 			.destroy = _destroy,
 #ifdef VC_AUTH
 			.add_vc = _add_vc,  
-			.remove_vc = _remove_vc,
+			/* .remove_vc = _remove_vc, */
+			.add_vc_ref = _add_vc_ref,
+			.get_cert_ref = _get_cert_ref,
 #endif
 		},
 		.trusted = linked_list_create(),

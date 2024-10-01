@@ -1247,6 +1247,14 @@ static void merge(private_auth_cfg_t *this, private_auth_cfg_t *other, bool copy
 					add(this, type, cert->get_ref(cert));
 					break;
 				}
+#ifdef VC_AUTH
+				case AUTH_RULE_SUBJECT_VC:
+				{
+					verifiable_credential_t *vc = (verifiable_credential_t*)value;
+					add(this, type, vc->get_ref(vc));
+					break;	
+				}
+#endif
 				case AUTH_RULE_IDENTITY_LOOSE:
 				case AUTH_RULE_CRL_VALIDATION:
 				case AUTH_RULE_OCSP_VALIDATION:

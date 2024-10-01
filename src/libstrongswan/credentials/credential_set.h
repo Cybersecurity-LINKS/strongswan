@@ -116,7 +116,7 @@ struct credential_set_t {
 	 * @return			enumerator over the credentials
 	 */
 	enumerator_t *(*create_vc_enumerator)(credential_set_t *this,
-								verifiable_credential_type_t vc, identification_t *vcid);
+								verifiable_credential_type_t vc, identification_t *id);
 #endif
 };
 

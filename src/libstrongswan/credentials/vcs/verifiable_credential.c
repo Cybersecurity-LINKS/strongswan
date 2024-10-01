@@ -28,6 +28,20 @@ bool verifiable_credential_equals(verifiable_credential_t *vc, verifiable_creden
 			return chunk_equals(a, b);
 		}
 	} */
-	return FALSE;
+	return TRUE;
+}
+
+/**
+ * Described in header
+ */
+bool vc_matches(verifiable_credential_t *vc, verifiable_credential_type_t type,
+						 identification_t *id)
+{
+	if (type != VC_ANY && type != vc->get_type(vc))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
 #endif

@@ -48,15 +48,15 @@ struct vici_cred_t {
 	 */
 	certificate_t* (*add_cert)(vici_cred_t *this, certificate_t *cert);
 
-//#ifdef VC_AUTH
+#ifdef VC_AUTH
 	/**
 	 * Add a certificate to the certificate store
 	 *
 	 * @param vc	verifiable credential to be added to store
 	 * @return		reference to verifiable credential or cached copy
 	 */
-//	verifiable_credential_t* (*add_vc)(vici_cred_t *this, verifiable_credential_t *vc);
-//#endif
+	verifiable_credential_t* (*add_vc)(vici_cred_t *this, verifiable_credential_t *vc);
+#endif
 
 	/**
 	 * Destroy a vici_cred_t.

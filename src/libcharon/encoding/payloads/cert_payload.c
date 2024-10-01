@@ -383,7 +383,7 @@ cert_payload_t *cert_payload_create_from_vc(payload_type_t type,
 			free(this);
 			return NULL;
 	}
-	if (!vc->get_encoding(vc, CERT_ASN1_DER, &this->data))
+	if (!vc->get_encoding(vc, VC_ASN1_DER, &this->data))
 	{
 		DBG1(DBG_ENC, "encoding vc for cert payload failed");
 		free(this);
