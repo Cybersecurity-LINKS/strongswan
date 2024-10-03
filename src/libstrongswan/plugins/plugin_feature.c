@@ -56,6 +56,7 @@ ENUM(plugin_feature_names, FEATURE_NONE, FEATURE_CUSTOM,
 	"RESOLVER",
 #ifdef VC_AUTH
 	"VC",
+	"DID",
 #endif
 	"CUSTOM",
 );
@@ -584,6 +585,10 @@ bool plugin_feature_load(plugin_t *plugin, plugin_feature_t *feature,
 								feature->arg.vc, reg->arg.reg.final,
 								name, reg->arg.reg.f);
 			break;
+		case FEATURE_DID:
+			lib->creds->add_builder(lib->creds, CRED_DECENTRALIZED_IDENTIFIER,
+								feature->arg.did, reg->arg.reg.final,
+								name, reg->arg.reg.f);
 #endif
 	}
 	return TRUE;
@@ -680,6 +685,8 @@ bool plugin_feature_unload(plugin_t *plugin, plugin_feature_t *feature,
 			break;
 #ifdef VC_AUTH 
 		case FEATURE_VC:
+			lib->creds->remove_builder(lib->creds, reg->arg.reg.f);
+		case FEATURE_DID:
 			lib->creds->remove_builder(lib->creds, reg->arg.reg.f);
 #endif
 	}

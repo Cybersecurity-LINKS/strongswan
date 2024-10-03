@@ -1,5 +1,5 @@
 #ifdef VC_AUTH
-#include "identity.h"
+#include "../identity.h"
 #include <utils/utils/object.h>
 #include "./vc.h"
 #include <credentials/vcs/verifiable_credential.h>
@@ -63,13 +63,13 @@ METHOD(verifiable_credential_t, get_encoding, bool,
     return false;
 }
 
-METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const char *stronghold_path, const char *password) {
+/* METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const char *stronghold_path, const char *password) {
     this->w = setup("ciao", "ciao");
 
     if(this->w != NULL)
         return TRUE;
     return FALSE;
-}
+} */
 
 METHOD(verifiable_credential_t, get_ref, verifiable_credential_t*,
 	private_vc_t *this)
@@ -124,7 +124,6 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
             .vc = {
                 .get_type = _get_type,
                 .get_encoding = _get_encoding,
-                .wallet_setup = _wallet_setup,
                 .equals = verifiable_credential_equals,
                 .get_ref = _get_ref,
                 .destroy = _destroy,
@@ -136,14 +135,20 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
     if(jwt.ptr == NULL)
         return NULL;
     
+    char oid[20];
+    char vc[2000];
+    if(sscanf((char *)jwt.ptr, "%s %s", oid, vc) == EOF)
+        return NULL;
+
+    printf("This is the content of vc[2000]: %s\n\n", vc);
     /* this->w = setup("./test-stuff/server.stronghold", "server");
     if(this->w == NULL)
         return NULL; */
 
-    this->vc_oe = set_vc(jwt.ptr);
+    this->vc_oe = set_vc(vc);
     if (this->vc_oe != NULL) 
     {
-        printf("This is the loaded vc: %s\n", get_vc(this->vc_oe));
+        printf("This is the loaded vc: %s\n\n", get_vc(this->vc_oe));
         return &this->public; 
     }
 

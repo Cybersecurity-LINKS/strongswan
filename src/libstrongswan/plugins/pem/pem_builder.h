@@ -28,7 +28,10 @@
 #include <credentials/keys/private_key.h>
 #include <credentials/certificates/certificate.h>
 #include <credentials/containers/container.h>
+#ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
+#endif
 
 /**
  * Load PEM encoded private keys.
@@ -75,6 +78,17 @@ container_t *pem_container_load(container_type_t type, va_list args);
  * @return      verifiable credential, NULL if failed
  */
 verifiable_credential_t *pem_vc_load(verifiable_credential_type_t type, va_list args);
+#endif
+
+#ifdef VC_AUTH
+/** 
+ * Build PEM encoded DID.
+ * 
+ * @param type  type of the decentralized identifier
+ * @param args  builder_part_t argument list
+ * @return      decentralized identifier, NULL if failed
+ */
+decentralized_identifier_t *pem_did_load(decentralized_identifier_type_t type, va_list args);
 #endif
 
 #endif /** PEM_BUILDER_H_ @}*/

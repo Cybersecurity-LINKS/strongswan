@@ -6,11 +6,6 @@
 #include <credentials/cred_encoding.h>
 
 typedef struct verifiable_credential_t verifiable_credential_t;
-
-/*
-* An abstract VC
-*/
-
 typedef enum verifiable_credential_type_t verifiable_credential_type_t; 
 
 enum verifiable_credential_type_t {
@@ -24,6 +19,10 @@ enum verifiable_credential_type_t {
  * Enum names for key_type_t
  */
 extern enum_name_t *vc_type_names;
+
+/*
+* An abstract VC
+*/
 
 struct verifiable_credential_t {
 
@@ -51,7 +50,7 @@ struct verifiable_credential_t {
      * @param password password to access the wallet
      * @return TRUE if the wallet is created succesfully
      */
-    bool (*wallet_setup)(verifiable_credential_t *this, const char *stronghold_path, const char *password);
+//   bool (*wallet_setup)(verifiable_credential_t *this, const char *stronghold_path, const char *password);
 
     /**
 	 * Check if two verifiable credentials are equal.

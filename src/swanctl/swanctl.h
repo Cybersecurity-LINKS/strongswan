@@ -106,6 +106,11 @@ extern char *swanctl_dir;
  * Directory for VC
  */
 #define SWANCTL_VCDIR "vc"
+
+/**
+ * Directory for VC
+ */
+#define SWANCTL_IOTADIR "iota"
 #endif
 
 /**

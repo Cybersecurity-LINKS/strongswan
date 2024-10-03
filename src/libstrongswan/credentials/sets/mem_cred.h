@@ -30,6 +30,7 @@ typedef struct mem_cred_t mem_cred_t;
 #include <collections/linked_list.h>
 #ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
 #endif
 
 /**
@@ -112,6 +113,15 @@ struct mem_cred_t {
 	 * @return				the same verifiable credential, potentially different instance
 	 */
 	verifiable_credential_t* (*get_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
+#endif
+
+#ifdef VC_AUTH
+/**
+	 * Add a verifiable credential to the credential set.
+	 *
+	 * @param did			DID, reference gets owned by set
+	 */
+	void (*add_did)(mem_cred_t *this, decentralized_identifier_t *did);
 #endif
 
 	/**

@@ -67,6 +67,10 @@ struct private_mem_cred_t {
 	 * List of verifiable credentials, verifiable_credential_t
 	 */
 	linked_list_t *vcs;
+	/**
+	 * List of decentralized identifiers, decentralized_identifier_t
+	 */
+	linked_list_t *dids;
 #endif
 };
 
@@ -272,7 +276,7 @@ CALLBACK(vc_equals, bool,
 #ifdef VC_AUTH
 /**
  * Add a VC the the cache. Returns a reference to "vc" or a
- * previously cached certificate that equals "vc".
+ * previously cached VC that equals "vc".
  */
 static verifiable_credential_t *add_vc_internal(private_mem_cred_t *this,
 										verifiable_credential_t *vc)
@@ -375,6 +379,51 @@ METHOD(mem_cred_t, get_vc_ref, verifiable_credential_t*,
 	this->lock->unlock(this->lock);
 
 	return vc;
+}
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(did_equals, bool,
+	decentralized_identifier_t *item, va_list args)
+{
+	decentralized_identifier_t *did;
+
+	VA_ARGS_VGET(args, did);
+	return item->equals(item, did);
+}
+#endif
+
+#ifdef VC_AUTH
+/**
+ * Add a DID the the cache. Returns a reference to "DID" or a
+ * previously cached DID that equals "DID".
+ */
+static decentralized_identifier_t *add_did_internal(private_mem_cred_t *this,
+										decentralized_identifier_t *did)
+{
+	decentralized_identifier_t *cached;
+	this->lock->write_lock(this->lock);
+	if (this->dids->find_first(this->dids, did_equals,
+									(void**)&cached, did))
+	{
+		did->destroy(did);
+		did = cached->get_ref(cached);
+	}
+	else
+	{
+		this->dids->insert_first(this->dids, did->get_ref(did));
+	}
+	this->lock->unlock(this->lock);
+	return did;
+}
+#endif
+
+#ifdef VC_AUTH
+METHOD(mem_cred_t, add_did, void,
+	private_mem_cred_t *this, decentralized_identifier_t *did)
+{
+	decentralized_identifier_t *cached = add_did_internal(this, did);
+	cached->destroy(cached);
 }
 #endif
 
@@ -1107,7 +1156,8 @@ mem_cred_t *mem_cred_create()
 			.add_vc = _add_vc,  
 			/* .remove_vc = _remove_vc, */
 			.add_vc_ref = _add_vc_ref,
-			.get_cert_ref = _get_cert_ref,
+			.get_vc_ref = _get_vc_ref,
+			.add_did = _add_did,
 #endif
 		},
 		.trusted = linked_list_create(),
@@ -1117,6 +1167,7 @@ mem_cred_t *mem_cred_create()
 		.cdps = linked_list_create(),
 #ifdef VC_AUTH
 		.vcs = linked_list_create(),
+		.dids = linked_list_create(),
 #endif
 		.lock = rwlock_create(RWLOCK_TYPE_DEFAULT),
 	);

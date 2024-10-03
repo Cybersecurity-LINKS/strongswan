@@ -140,7 +140,13 @@ METHOD(plugin_t, get_features, int,
 		PLUGIN_REGISTER(VC, pem_vc_load, FALSE),
 			PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
 				//PLUGIN_DEPENDS(VC, VC_DATA_MODEL_2_0),
-#endif	
+#endif
+
+#ifdef VC_AUTH
+		/* decentralized identifier PEM encoding */
+		PLUGIN_REGISTER(DID, pem_did_load, FALSE),
+			PLUGIN_PROVIDE(DID, DID_IOTA),
+#endif
 	};
 	*features = f;
 	return countof(f);

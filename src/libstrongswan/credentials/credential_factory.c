@@ -24,15 +24,19 @@
 #include <threading/rwlock.h>
 #include <credentials/certificates/x509.h>
 #include <credentials/containers/container.h>
+#ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
+#endif
 
 #ifdef VC_AUTH
-ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_VERIFIABLE_CREDENTIAL,
+ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_DECENTRALIZED_IDENTIFIER,
 	"CRED_PRIVATE_KEY",
 	"CRED_PUBLIC_KEY",
 	"CRED_CERTIFICATE",
 	"CRED_CONTAINER",
 	"CRED_VERIFIABLE_CREDENTIAL",
+	"CRED_DECENTRALIZED_IDENTIFIER",
 );
 #else
 ENUM(credential_type_names, CRED_PRIVATE_KEY, CRED_CONTAINER,
@@ -143,6 +147,9 @@ METHOD(credential_factory_t, create, void*,
 #ifdef VC_AUTH
 		case CRED_VERIFIABLE_CREDENTIAL:
 			names = vc_type_names;
+			break;
+		case CRED_DECENTRALIZED_IDENTIFIER:
+			names = did_type_names;
 			break;
 #endif
 		case CRED_PRIVATE_KEY:

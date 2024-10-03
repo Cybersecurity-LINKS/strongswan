@@ -45,6 +45,8 @@ enum credential_type_t {
 #ifdef VC_AUTH
 	/** vc container, implemented in verifiable_credential_t */
 	CRED_VERIFIABLE_CREDENTIAL,
+	/** did container, implemented in decentralized_identifier_t */
+	CRED_DECENTRALIZED_IDENTIFIER,
 #endif
 };
 

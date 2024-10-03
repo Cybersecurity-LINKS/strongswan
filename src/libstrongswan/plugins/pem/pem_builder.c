@@ -542,3 +542,13 @@ verifiable_credential_t *pem_vc_load(verifiable_credential_type_t type, va_list 
 	return pem_load(CRED_VERIFIABLE_CREDENTIAL, type, args);
 }
 #endif
+
+#ifdef VC_AUTH
+/**
+ * Decentralized Identifier PEM loader.
+ */
+decentralized_identifier_t *pem_did_load(decentralized_identifier_type_t type, va_list args)
+{
+	return pem_load(CRED_DECENTRALIZED_IDENTIFIER, type, args);
+}
+#endif

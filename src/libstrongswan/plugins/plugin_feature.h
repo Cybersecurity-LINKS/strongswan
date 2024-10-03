@@ -32,6 +32,7 @@ typedef struct plugin_feature_t plugin_feature_t;
 #include <credentials/containers/container.h>
 #ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
 #endif
 
 /**
@@ -164,6 +165,8 @@ struct plugin_feature_t {
 #ifdef VC_AUTH
 		/** generic VC support */
 		FEATURE_VC,
+		/** generic DID Method support */
+		FEATURE_DID,
 #endif
 		/** custom feature, described with a string */
 		FEATURE_CUSTOM,
@@ -227,6 +230,8 @@ struct plugin_feature_t {
 #ifdef VC_AUTH
 		/** FEATURE_VC */
 		verifiable_credential_type_t vc;
+		/** FEATURE_DID */
+		decentralized_identifier_type_t did;
 #endif
 		/** FEATURE_REGISTER */
 		struct {
@@ -329,6 +334,7 @@ struct plugin_feature_t {
 #define _PLUGIN_FEATURE_XAUTH_PEER(kind, name)				__PLUGIN_FEATURE(kind, XAUTH_PEER, .xauth = name)
 #ifdef VC_AUTH
 #define _PLUGIN_FEATURE_VC(kind, type)						__PLUGIN_FEATURE(kind, VC, .vc = type)
+#define _PLUGIN_FEATURE_DID(kind, type)						__PLUGIN_FEATURE(kind, DID, .did = type)
 #endif
 
 #define __PLUGIN_FEATURE_REGISTER(type, _f)					(plugin_feature_t){ FEATURE_REGISTER, FEATURE_##type, .arg.reg.f = _f }
@@ -356,6 +362,7 @@ struct plugin_feature_t {
 #define _PLUGIN_FEATURE_REGISTER_RESOLVER(type, f)			__PLUGIN_FEATURE_REGISTER(type, f)
 #ifdef VC_AUTH
 #define _PLUGIN_FEATURE_REGISTER_VC(type, f, final)				__PLUGIN_FEATURE_REGISTER_BUILDER(type, f, final)
+#define _PLUGIN_FEATURE_REGISTER_DID(type, f, final)			__PLUGIN_FEATURE_REGISTER_BUILDER(type, f, final)
 #endif
 
 #define _PLUGIN_FEATURE_CALLBACK(_cb, _data) (plugin_feature_t){ FEATURE_CALLBACK, FEATURE_NONE, .arg.cb = { .f = _cb, .data = _data } }

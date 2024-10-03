@@ -27,6 +27,7 @@
 #include <credentials/certificates/x509.h>
 #ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
 #endif
 
 #include <errno.h>
@@ -527,7 +528,7 @@ CALLBACK(load_vc, vici_message_t*, private_vici_cred_t *this, char *name, u_int 
 	data = message->get_value(message, chunk_empty, "data");
 	if (!data.len)
 	{
-		return create_reply("key data missing");
+		return create_reply("VC data missing");
 	}
 	vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, type, 
 							BUILD_BLOB_PEM, data, BUILD_END);
@@ -540,6 +541,44 @@ CALLBACK(load_vc, vici_message_t*, private_vici_cred_t *this, char *name, u_int 
 	DBG1(DBG_CFG, "loaded %N vc", vc_type_names, type);
 
 	this->creds->add_vc(this->creds, vc);
+	
+	return create_reply(NULL);
+}
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(load_did, vici_message_t*, private_vici_cred_t *this, char *name, u_int id, vici_message_t *message)
+{	
+	decentralized_identifier_t *did;
+	decentralized_identifier_type_t type;
+	chunk_t data;
+	char *str;
+
+	str = message->get_str(message, NULL, "type");
+	if (!str)
+	{
+		return create_reply("DID type missing");
+	}
+	if (!enum_from_name(did_type_names, str, &type))
+	{
+		return create_reply("invalid DID type: %s", str);
+	}
+	data = message->get_value(message, chunk_empty, "data");
+	if (!data.len)
+	{
+		return create_reply("DID data missing");
+	}
+	did = lib->creds->create(lib->creds, CRED_DECENTRALIZED_IDENTIFIER, type, 
+							BUILD_BLOB_PEM, data, BUILD_END);
+	if (!did)
+	{
+		return create_reply("parsing %N DID failed",
+							did_type_names, type);
+	}
+
+	DBG1(DBG_CFG, "loaded %N did", did_type_names, type);
+
+	this->creds->add_did(this->creds, did);
 	
 	return create_reply(NULL);
 }
@@ -618,6 +657,7 @@ static void manage_commands(private_vici_cred_t *this, bool reg)
 	manage_command(this, "get-shared", get_shared, reg);
 #ifdef VC_AUTH
 	manage_command(this, "load-vc", load_vc, reg);
+	manage_command(this, "load-did", load_did, reg);
 #endif
 }
 
