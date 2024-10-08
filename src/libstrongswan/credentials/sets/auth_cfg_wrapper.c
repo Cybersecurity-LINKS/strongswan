@@ -217,6 +217,10 @@ auth_cfg_wrapper_t *auth_cfg_wrapper_create(auth_cfg_t *auth)
 				.create_shared_enumerator = (void*)return_null,
 				.create_cdp_enumerator = (void*)return_null,
 				.cache_cert = (void*)nop,
+#ifdef VC_AUTH
+				.create_vc_enumerator = (void*)return_null,
+				.create_did_enumerator = (void*)return_null,
+#endif
 			},
 			.destroy = _destroy,
 		},

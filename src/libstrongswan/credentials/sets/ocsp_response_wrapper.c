@@ -140,6 +140,10 @@ ocsp_response_wrapper_t *ocsp_response_wrapper_create(ocsp_response_t *response)
 				.create_shared_enumerator = (void*)return_null,
 				.create_cdp_enumerator = (void*)return_null,
 				.cache_cert = (void*)nop,
+#ifdef VC_AUTH
+				.create_vc_enumerator = (void*)return_null,
+				.create_did_enumerator = (void*)return_null,
+#endif
 			},
 			.destroy = _destroy,
 		},

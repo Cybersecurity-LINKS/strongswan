@@ -25,6 +25,9 @@
 #include <asn1/oid.h>
 #include <collections/array.h>
 #include <credentials/certificates/x509.h>
+#ifdef VC_AUTH
+#include <credentials/dids/decentralized_identifier.h>
+#endif
 
 typedef struct private_pubkey_authenticator_t private_pubkey_authenticator_t;
 
@@ -516,16 +519,81 @@ static status_t sign_classic(private_pubkey_authenticator_t *this,
 	return status;
 }
 
+#ifdef VC_AUTH
+/**
+ * Get the auth octets and the DID signature scheme (in case it is changed by the
+ * keymat).
+ */
+static bool get_auth_octets_did_scheme(private_pubkey_authenticator_t *this,
+								bool verify, identification_t *id, chunk_t ppk,
+								chunk_t *octets, signature_params_t **scheme)
+{
+	keymat_v2_t *keymat;
+	bool success = FALSE;
+	array_t *schemes = NULL;
+
+	keymat = (keymat_v2_t*)this->ike_sa->get_keymat(this->ike_sa);
+	if (keymat->get_auth_octets(keymat, verify, this->ike_sa_init, this->nonce,
+								this->int_auth, ppk, id, this->reserved, octets,
+								schemes))
+	{
+		success = TRUE;
+	}
+
+	return success;
+}
+#endif
+
+#ifdef VC_AUTH
+/**
+ * Create a signature with the DID
+ */
+static status_t sign_did(private_pubkey_authenticator_t *this,
+							 auth_cfg_t *auth, decentralized_identifier_t *did,
+							 identification_t *id, message_t *message) 
+{
+	chunk_t octets = chunk_empty, auth_data;
+	status_t status = FAILED;
+	signature_params_t *params = NULL;
+	
+	if (get_auth_octets_did_scheme(this, FALSE, id, this->ppk, &octets, &params) &&
+	 did->sign(did, octets, &auth_data))
+	{	
+		add_auth_to_message(message, AUTH_DS, auth_data, FALSE);
+		status = SUCCESS;
+	}
+	
+	DBG1(DBG_IKE, "authentication of '%Y' (myself) with %N %s", id,
+		 auth_method_names, AUTH_DS,
+		 status == SUCCESS ? "successful" : "failed");
+	chunk_free(&octets);
+	return status;
+}
+#endif
+
 METHOD(authenticator_t, build, status_t,
 	private_pubkey_authenticator_t *this, message_t *message)
 {
 	private_key_t *private;
+#ifdef VC_AUTH
+	decentralized_identifier_t *did;
+#endif	
 	identification_t *id;
 	auth_cfg_t *auth;
 	status_t status;
 
+
 	id = this->ike_sa->get_my_id(this->ike_sa);
 	auth = this->ike_sa->get_auth_cfg(this->ike_sa, TRUE);
+#ifdef VC_AUTH
+	did = lib->credmgr->get_did(lib->credmgr, DID_IOTA, id);
+	if(did){
+		status = sign_did(this, auth, did, id, message);
+		//did->destroy(did);
+		return status;
+	}
+#endif
+
 	private = lib->credmgr->get_private(lib->credmgr, KEY_ANY, id, auth);
 	if (!private)
 	{

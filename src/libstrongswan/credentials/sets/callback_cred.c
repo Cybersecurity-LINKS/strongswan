@@ -126,6 +126,10 @@ static private_callback_cred_t* create_generic(void *cb, void *data)
 				.create_cert_enumerator = (void*)return_null,
 				.create_cdp_enumerator  = (void*)return_null,
 				.cache_cert = (void*)nop,
+#ifdef VC_AUTH
+				.create_vc_enumerator = (void*)return_null,
+				.create_did_enumerator = (void*)return_null,
+#endif
 			},
 			.destroy = _destroy,
 		},

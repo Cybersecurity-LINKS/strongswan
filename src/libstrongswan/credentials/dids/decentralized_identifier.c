@@ -29,4 +29,18 @@ bool decentralized_identifier_equals(decentralized_identifier_t *did, decentrali
 	return TRUE;
 }
 
+/**
+ * Described in header
+ */
+bool did_matches(decentralized_identifier_t *did, decentralized_identifier_type_t type,
+						 identification_t *id)
+{
+	if (type != did->get_type(did))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 #endif

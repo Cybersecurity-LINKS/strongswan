@@ -487,6 +487,10 @@ cert_cache_t *cert_cache_create()
 				.create_shared_enumerator = (void*)return_null,
 				.create_cdp_enumerator = (void*)return_null,
 				.cache_cert = (void*)nop,
+#ifdef VC_AUTH
+				.create_vc_enumerator = (void*)return_null,
+				.create_did_enumerator = (void*)return_null,
+#endif
 			},
 			.issued_by = _issued_by,
 			.flush = _flush,

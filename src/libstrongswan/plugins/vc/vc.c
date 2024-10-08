@@ -1,5 +1,5 @@
 #ifdef VC_AUTH
-#include "../identity.h"
+#include "../did_iota/identity.h"
 #include <utils/utils/object.h>
 #include "./vc.h"
 #include <credentials/vcs/verifiable_credential.h>

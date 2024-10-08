@@ -140,6 +140,15 @@ typedef struct {
 } vc_data_t;
 #endif
 
+#ifdef VC_AUTH
+/** data to pass to create_did_enumerator */
+typedef struct {
+	private_credential_manager_t *this;
+	decentralized_identifier_type_t type;
+	identification_t* id;
+} did_data_t;
+#endif
+
 /** enumerator over local and global sets */
 typedef struct {
 	/** implements enumerator_t */
@@ -1361,6 +1370,60 @@ METHOD(credential_manager_t, get_private, private_key_t*,
 	return private;
 }
 
+#ifdef VC_AUTH
+/**
+ * cleanup function for decentralized identifier
+ */
+static void destroy_did_data(did_data_t *data)
+{
+	data->this->lock->unlock(data->this->lock);
+	/* TODO */
+	/* Maybe I should free internal fields manually */
+	free(data);
+}
+
+/**
+ * enumerator constructor for verifiable credentials
+ */
+static enumerator_t *create_did(credential_set_t *set, did_data_t *data)
+{
+	return set->create_did_enumerator(set, data->type, data->id);
+}
+
+static enumerator_t *create_did_enumerator(
+	private_credential_manager_t *this, decentralized_identifier_type_t did, identification_t *id)
+{
+	did_data_t *data;
+
+	INIT(data,
+		.this = this,
+		.type = did,
+		.id = id,
+	);
+	this->lock->read_lock(this->lock);
+	return enumerator_create_nested(create_sets_enumerator(this),
+									(void*)create_did, data,
+									(void*)destroy_did_data);
+}
+#endif
+
+#ifdef VC_AUTH
+METHOD(credential_manager_t, get_did, decentralized_identifier_t*,
+	private_credential_manager_t *this, decentralized_identifier_type_t did, identification_t *id) 
+{
+	decentralized_identifier_t *found = NULL;
+	enumerator_t *enumerator;
+	
+	enumerator = create_did_enumerator(this, did, id);
+	if(enumerator->enumerate(enumerator, &found))
+	{
+		found->get_ref(found);
+	}
+	enumerator->destroy(enumerator);
+	return found;
+}
+#endif
+
 METHOD(credential_manager_t, get_ocsp, certificate_t*,
 	private_credential_manager_t *this, certificate_t *subject,
 	certificate_t *issuer)
@@ -1498,11 +1561,17 @@ credential_manager_t *credential_manager_create()
 	INIT(this,
 		.public = {
 			.create_cert_enumerator = _create_cert_enumerator,
+#ifdef VC_AUTH
+			.create_vc_enumerator = _create_vc_enumerator,
+#endif
 			.create_shared_enumerator = _create_shared_enumerator,
 			.create_cdp_enumerator = _create_cdp_enumerator,
 			.get_cert = _get_cert,
 			.get_shared = _get_shared,
 			.get_private = _get_private,
+#ifdef VC_AUTH
+			.get_did = _get_did,
+#endif
 			.get_ocsp = _get_ocsp,
 			.create_trusted_enumerator = _create_trusted_enumerator,
 			.create_public_enumerator = _create_public_enumerator,
@@ -1518,9 +1587,6 @@ credential_manager_t *credential_manager_create()
 			.set_hook = _set_hook,
 			.call_hook = _call_hook,
 			.destroy = _destroy,
-#ifdef VC_AUTH
-			.create_vc_enumerator = _create_vc_enumerator,
-#endif
 		},
 		.sets = linked_list_create(),
 		.validators = linked_list_create(),

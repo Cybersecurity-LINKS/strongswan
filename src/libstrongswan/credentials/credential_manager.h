@@ -113,6 +113,18 @@ struct credential_manager_t {
 	enumerator_t *(*create_cert_enumerator)(credential_manager_t *this,
 								certificate_type_t cert, key_type_t key,
 								identification_t *id, bool trusted);
+	
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over all verifiable credentials.
+	 *
+	 * @param vc		kind of certificate
+	 * @return			enumerator over the credentials
+	 */
+	enumerator_t *(*create_vc_enumerator)(credential_manager_t *this,
+								verifiable_credential_type_t vc,identification_t *vcid);
+#endif
+
 	/**
 	 * Create an enumerator over all shared keys.
 	 *
@@ -176,6 +188,21 @@ struct credential_manager_t {
 	 */
 	private_key_t* (*get_private)(credential_manager_t *this, key_type_t type,
 								  identification_t *id, auth_cfg_t *auth);
+
+	#ifdef VC_AUTH
+	/**
+	 * Get a DID to create a signature.
+	 * 
+	 * The get_did() method gets a DID identified by either
+	 * the DID itself or an id the DID belongs to.
+	 * 
+	 * @param type		type of the DID to get
+	 * @param id		identification the DID belongs to
+	 * @return			decentralized_identifier_t, NULL if none found
+	 */ 
+	decentralized_identifier_t* (*get_did)(credential_manager_t *this, decentralized_identifier_type_t did,
+								  identification_t *id);
+	#endif
 
 	/**
 	 * Get an OCSP response for the given certificate.
@@ -338,17 +365,6 @@ struct credential_manager_t {
 	 * Destroy a credential_manager instance.
 	 */
 	void (*destroy)(credential_manager_t *this);
-
-#ifdef VC_AUTH
-	/**
-	 * Create an enumerator over all verifiable credentials.
-	 *
-	 * @param vc		kind of certificate
-	 * @return			enumerator over the credentials
-	 */
-	enumerator_t *(*create_vc_enumerator)(credential_manager_t *this,
-								verifiable_credential_type_t vc,identification_t *vcid);
-#endif
 };
 
 /**

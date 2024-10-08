@@ -29,6 +29,7 @@ typedef struct credential_set_t credential_set_t;
 #include <credentials/certificates/certificate.h>
 #ifdef VC_AUTH
 #include <credentials/vcs/verifiable_credential.h>
+#include <credentials/dids/decentralized_identifier.h>
 #endif
 
 /**
@@ -117,6 +118,17 @@ struct credential_set_t {
 	 */
 	enumerator_t *(*create_vc_enumerator)(credential_set_t *this,
 								verifiable_credential_type_t vc, identification_t *id);
+#endif
+
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over decentralized identifier.
+	 *
+	 * @param did		kind of decentralized identifier
+	 * @return			enumerator over the decentralized identifier
+	 */
+	enumerator_t *(*create_did_enumerator)(credential_set_t *this,
+								decentralized_identifier_type_t did, identification_t *id);
 #endif
 };
 

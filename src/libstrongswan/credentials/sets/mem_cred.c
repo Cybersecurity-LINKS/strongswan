@@ -383,6 +383,68 @@ METHOD(mem_cred_t, get_vc_ref, verifiable_credential_t*,
 #endif
 
 #ifdef VC_AUTH
+/**
+ * Data for the did enumerator
+ */
+typedef struct {
+	rwlock_t *lock;
+	decentralized_identifier_type_t did;
+	identification_t *id;
+} did_data_t;
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(did_data_destroy, void,
+	did_data_t *data)
+{
+	data->lock->unlock(data->lock);
+	free(data);
+}
+#endif
+
+#ifdef VC_AUTH
+CALLBACK(did_filter, bool,
+	did_data_t *data, enumerator_t *orig, va_list args)
+{
+	decentralized_identifier_t *did;
+	decentralized_identifier_t **out;
+ 
+	VA_ARGS_VGET(args, out);
+
+	while (orig->enumerate(orig, &did))
+	{
+		if (did_matches(did, data->did, data->id))
+		{
+			*out = did;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+#endif
+
+#ifdef VC_AUTH
+METHOD(credential_set_t, create_did_enumerator, enumerator_t*,
+	private_mem_cred_t *this, decentralized_identifier_type_t did, identification_t *id)
+{
+	did_data_t *data;
+	enumerator_t *enumerator;
+
+	INIT(data,
+		.lock = this->lock,
+		.did = did,
+		.id = id,
+	);
+	this->lock->read_lock(this->lock);
+
+	enumerator = this->dids->create_enumerator(this->dids);
+
+	return enumerator_create_filter(enumerator, did_filter, data,
+									did_data_destroy);
+}
+#endif
+
+#ifdef VC_AUTH
 CALLBACK(did_equals, bool,
 	decentralized_identifier_t *item, va_list args)
 {
@@ -1133,6 +1195,10 @@ mem_cred_t *mem_cred_create()
 				.create_private_enumerator = _create_private_enumerator,
 				.create_cert_enumerator = _create_cert_enumerator,
 				.create_cdp_enumerator  = _create_cdp_enumerator,
+#ifdef VC_AUTH
+				.create_vc_enumerator = _create_vc_enumerator,
+				.create_did_enumerator = _create_did_enumerator,
+#endif
 				.cache_cert = (void*)nop,
 			},
 			.add_cert = _add_cert,
