@@ -56,6 +56,9 @@ METHOD(verifiable_credential_t, get_encoding, bool,
         jwt = get_vc(this->vc_oe);
         encoding->ptr = jwt;
         encoding->len = strlen(jwt);
+
+        printf("jwt in get encoding is %s\n\n", encoding->ptr);
+        printf("jwt len in get encoding is %d\n\n", encoding->len);
         /* Maybe I should encode it in DER format */
         return TRUE;
     }

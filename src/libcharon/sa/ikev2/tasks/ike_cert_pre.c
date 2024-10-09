@@ -553,17 +553,17 @@ static void add_certreq_ocsp(certreq_payload_t *req, certificate_t *cert)
 	public->destroy(public);
 }
 
-#ifdef VC_AUTH
+//#ifdef VC_AUTH
 /**
  * add the DID Methods to the certificate request payload
  */
-static void add_certreq_vc(certreq_payload_t **req, verifiable_credential_t *vc)
+/* static void add_certreq_vc(certreq_payload_t **req, verifiable_credential_t *vc)
 {	
 	*req = certreq_vc_payload_create_type(VC_ANY);
 
 	return;
 }
-#endif
+#endif */
 
 /**
  * build certificate requests
@@ -648,8 +648,8 @@ static void build_certreqs(private_ike_cert_pre_t *this, message_t *message)
 		{
 			add_certreq_vc(req, vc);	
 		}
-		enumerator->destroy(enumerator); */
-		add_certreq_vc(&req, vc);
+		enumerator->destroy(enumerator);
+		add_certreq_vc(&req, vc); */
 
 		message->add_payload(message, (payload_t*)req);
 	}
