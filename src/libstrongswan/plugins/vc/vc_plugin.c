@@ -1,6 +1,7 @@
 #ifdef VC_AUTH
 #include "vc_plugin.h"
 #include "vc.h"
+#include "did_iota.h"
 
 #include <library.h>
 
@@ -28,6 +29,8 @@ METHOD(plugin_t, get_features, int,
     static plugin_feature_t f[] = {
         PLUGIN_REGISTER(VC, vc_load, FALSE),
             PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
+        PLUGIN_REGISTER(DID, did_load, FALSE),
+            PLUGIN_PROVIDE(DID, DID_IOTA),
     };
 
     *features = f;

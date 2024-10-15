@@ -727,13 +727,6 @@ if MONOLITHIC
 endif
 endif
 
-if USE_DID_IOTA
-  SUBDIRS += plugins/did_iota
-if MONOLITHIC
-  libstrongswan_la_LIBADD += plugins/did_iota/libstrongswan-did-iota.la
-endif
-endif
-
 if MONOLITHIC
   SUBDIRS += .
 endif

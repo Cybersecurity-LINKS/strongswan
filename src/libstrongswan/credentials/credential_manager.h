@@ -255,6 +255,23 @@ struct credential_manager_t {
 					key_type_t type, identification_t *id, auth_cfg_t *auth,
 					bool online);
 
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over trusted decentralized identifiers.
+	 *
+	 * This method creates an enumerator over trusted decentralized identifiers to verify a
+	 * signature created by id. The auth parameter contains additional
+	 * authentication infos.
+	 * The resulting enumerator enumerates over decentralized_identifier_t *.
+	 *
+	 * @param did		type of the did to get
+	 * @param id		owner of the did, signer of the signature
+	 * @return			enumerator
+	 */
+	enumerator_t* (*create_did_enumerator)(credential_manager_t *this, 
+					decentralized_identifier_type_t did, identification_t *id);
+#endif
+
 	/**
 	 * Cache a certificate by invoking cache_cert() on all registered sets.
 	 *

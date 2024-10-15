@@ -1,14 +1,14 @@
 #ifdef VC_AUTH
-#include "../did_iota/identity.h"
 #include <utils/utils/object.h>
-#include "./vc.h"
+#include "vc.h"
 #include <credentials/vcs/verifiable_credential.h>
+#include "did_iota.h"
 
 #include <asn1/oid.h>
 #include <asn1/asn1.h>
 #include <asn1/asn1_parser.h>
 
-
+Wallet *w = NULL;
 typedef struct private_vc_t private_vc_t;
 
 /*
@@ -22,7 +22,7 @@ struct private_vc_t {
 	 */
 	vc_t public;
 
-    Wallet *w;
+    //Wallet *w;
     Did *did;
     Vc *vc_oe;
 
@@ -106,6 +106,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
 {
     private_vc_t *this;
     chunk_t jwt = chunk_empty;
+    bool vc_vrfy = false;
 
     while (TRUE)
 	{
@@ -114,6 +115,10 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
 			case BUILD_BLOB_ASN1_DER:
 				jwt = va_arg(args, chunk_t);
 				continue;
+            case BUILD_VC_VERIFY:
+                jwt = va_arg(args, chunk_t);
+                vc_vrfy = true;
+                continue;
 			case BUILD_END:
 				break;
 			default:
@@ -137,6 +142,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
 
     if(jwt.ptr == NULL)
         return NULL;
+    printf("This is the content of jwt.ptr: %s\n\n", jwt.ptr);
     
     char oid[20];
     char vc[2000];
@@ -144,9 +150,27 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
         return NULL;
 
     printf("This is the content of vc[2000]: %s\n\n", vc);
-    /* this->w = setup("./test-stuff/server.stronghold", "server");
-    if(this->w == NULL)
-        return NULL; */
+    if (w == NULL)
+	{
+		w = setup("./test-stuff/server.stronghold", "server");
+		if (w == NULL)
+			return NULL;
+	}
+
+    if(vc_vrfy) {
+        Did *did;
+        chunk_t data = chunk_empty;
+        const char *did_jwt = NULL;
+        did = vc_verify(w, vc);
+        if (!did)
+            return NULL;
+        did_jwt = get_did(did);
+        data.ptr = (u_char *)did_jwt;
+        data.len = strlen(did_jwt);
+        if(!lib->creds->create(lib->creds, CRED_DECENTRALIZED_IDENTIFIER, DID_IOTA, 
+							BUILD_BLOB_ASN1_DER, data, BUILD_END))
+            return NULL;
+    }
 
     this->vc_oe = set_vc(vc);
     if (this->vc_oe != NULL) 

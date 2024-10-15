@@ -255,7 +255,7 @@ METHOD(cert_payload_t, get_vc, verifiable_credential_t*,
 			return NULL;
 	}
 	return lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, type,
-							  BUILD_BLOB_ASN1_DER, this->data, BUILD_END);
+							  BUILD_VC_VERIFY, this->data, BUILD_END);
 }
 #endif
 

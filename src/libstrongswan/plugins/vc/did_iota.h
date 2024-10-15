@@ -3,6 +3,9 @@
 #define DID_IOTA_H
 
 #include <credentials/dids/decentralized_identifier.h>
+#include "identity.h"
+
+//extern Wallet *w;
 
 typedef struct did_iota_t did_iota_t;
 

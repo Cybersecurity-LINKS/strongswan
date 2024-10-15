@@ -180,7 +180,6 @@ ARG_DISBL_SET([sshkey],         [disable SSH key decoding plugin.])
 ARG_DISBL_SET([x509],           [disable X509 certificate implementation plugin.])
 ARG_ENABL_SET([openxpki],       [enable OCSP responder accessing OpenXPKI certificate database.])
 ARG_ENABL_SET([vc],				[enable VC implementation plugin.])
-ARG_ENABL_SET([did_iota],		[enable IOTA DID Method implementation plugin.])
 # fetcher/resolver plugins
 ARG_ENABL_SET([curl],           [enable CURL fetcher plugin to fetch files via libcurl. Requires libcurl.])
 ARG_ENABL_SET([files],          [enable simple file:// URI fetcher.])
@@ -1519,6 +1518,7 @@ if test x$vc = xtrue; then
 	AC_DEFINE([VC_AUTH], [], [VC authentication extension support])
 fi
 
+
 # ===============================================
 #  collect plugin list for strongSwan components
 # ===============================================
@@ -1687,7 +1687,6 @@ ADD_PLUGIN([addrblock],            [c charon])
 ADD_PLUGIN([unity],                [c charon])
 ADD_PLUGIN([counters],             [c charon])
 ADD_PLUGIN([vc],				   [s charon pki])
-ADD_PLUGIN([did-iota],			   [s charon pki])
 
 AC_SUBST(charon_plugins)
 AC_SUBST(pool_plugins)
@@ -1775,7 +1774,6 @@ AM_CONDITIONAL(USE_NEWHOPE, test x$newhope = xtrue)
 AM_CONDITIONAL(USE_BLISS, test x$bliss = xtrue)
 AM_CONDITIONAL(USE_DRBG, test x$drbg = xtrue)
 AM_CONDITIONAL(USE_VC, test x$vc = xtrue)
-AM_CONDITIONAL(USE_DID_IOTA, test x$did_iota = xtrue)
 
 #  charon plugins
 # ----------------
@@ -2065,7 +2063,6 @@ AC_CONFIG_FILES([
 	src/libstrongswan/plugins/newhope/tests/Makefile
 	src/libstrongswan/plugins/test_vectors/Makefile
 	src/libstrongswan/plugins/vc/Makefile
-	src/libstrongswan/plugins/did_iota/Makefile
 	src/libstrongswan/tests/Makefile
 	src/libipsec/Makefile
 	src/libipsec/tests/Makefile

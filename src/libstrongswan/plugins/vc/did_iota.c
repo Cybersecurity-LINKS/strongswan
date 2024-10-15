@@ -1,6 +1,5 @@
 #ifdef VC_AUTH
 #include "did_iota.h"
-#include "identity.h"
 #include <utils/utils/object.h>
 #include <credentials/dids/decentralized_identifier.h>
 
@@ -8,6 +7,7 @@
 #include <asn1/asn1.h>
 #include <asn1/asn1_parser.h>
 
+extern Wallet *w; 
 typedef struct private_did_iota_t private_did_iota_t;
 
 /*
@@ -21,7 +21,7 @@ struct private_did_iota_t {
 	 */
 	did_iota_t public;
 
-	Wallet *w;
+	//Wallet *w;
     Did *did_oe;
     /**
 	 * Reference counter
@@ -39,13 +39,13 @@ METHOD(decentralized_identifier_t, sign, bool,
 	private_did_iota_t *this, chunk_t data, chunk_t *signature)
 {	
 	printf("This is the DID Document in sign: %s\n\n", get_did(this->did_oe));
-	if(this->w == NULL){
+	if(w == NULL){
 		printf("w is null\n\n");
 	}
 	if(this->did_oe == NULL){
 		printf("did_oe is null\n\n");
 	}
-	signature->ptr = did_sign(this->w, this->did_oe, data.ptr, data.len);
+	signature->ptr = did_sign(w, this->did_oe, data.ptr, data.len);
 
 	if(signature->ptr == NULL)
 		return false;
@@ -71,7 +71,7 @@ METHOD(decentralized_identifier_t, get_ref, decentralized_identifier_t*,
 /* METHOD(decentralized_identifier_t, get_internal_wallet, Wallet*,
 	private_did_iota_t *this)
 {
-	return this->w;
+	return w;
 } */
 
 METHOD(decentralized_identifier_t, destroy, void,
@@ -138,9 +138,12 @@ did_iota_t *did_load(decentralized_identifier_type_t type, va_list args)
 	char privkey[300] = {'\0'};
 	char did_document[1000] = {'\0'};
 
-	this->w = setup("./test-stuff/server.stronghold", "server");
-	if (this->w == NULL)
-		return NULL;
+	if (w == NULL)
+	{
+		w = setup("./test-stuff/server.stronghold", "server");
+		if (w == NULL)
+			return NULL;
+	}
 
 	if(sscanf((char *)jwt.ptr, "%s%s%s%s", oid, fragment, privkey, did_document) == EOF)
         return NULL;

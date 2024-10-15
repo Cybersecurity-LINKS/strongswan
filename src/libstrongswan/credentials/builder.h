@@ -101,6 +101,10 @@ enum builder_part_t {
 	BUILD_CRL_DISTRIBUTION_POINTS,
 	/** OCSP AuthorityInfoAccess locations, linked_list_t* containing char* */
 	BUILD_OCSP_ACCESS_LOCATIONS,
+#ifdef VC_AUTH
+	/** a vc, verifiable_credential_t */
+	BUILD_VC_VERIFY,
+#endif
 	/** certificate path length constraint */
 	BUILD_PATHLEN,
 	/** RFC3779 addressBlock, linked_list_t* of traffic_selector_t* */

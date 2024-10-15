@@ -4,6 +4,8 @@
 
 //#include "identity.h"
 #include <credentials/vcs/verifiable_credential.h>
+//#include "../did_iota/did_iota.h"
+
 typedef struct vc_t vc_t;
 
 /**

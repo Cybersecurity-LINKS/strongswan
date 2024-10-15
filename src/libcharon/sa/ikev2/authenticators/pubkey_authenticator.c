@@ -672,6 +672,22 @@ METHOD(authenticator_t, process, status_t,
 		}
 	}
 
+#ifdef VC_AUTH
+	decentralized_identifier_t *did;
+	id = this->ike_sa->get_other_id(this->ike_sa);
+	if (!get_auth_octets_did_scheme(this, TRUE, id, this->ppk, &octets, &params))
+	{
+		return FAILED;
+	}
+	auth = this->ike_sa->get_auth_cfg(this->ike_sa, FALSE);
+	enumerator = lib->credmgr->create_did_enumerator(lib->credmgr,
+													DID_IOTA, id);
+	/* while (enumerator->enumerate(enumerator, &did))
+	{
+		
+	} */
+#endif
+
 	INIT(params);
 	switch (auth_method)
 	{

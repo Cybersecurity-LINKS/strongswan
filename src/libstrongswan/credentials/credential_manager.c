@@ -1390,7 +1390,7 @@ static enumerator_t *create_did(credential_set_t *set, did_data_t *data)
 	return set->create_did_enumerator(set, data->type, data->id);
 }
 
-static enumerator_t *create_did_enumerator(
+METHOD(credential_manager_t, create_did_enumerator, enumerator_t*,
 	private_credential_manager_t *this, decentralized_identifier_type_t did, identification_t *id)
 {
 	did_data_t *data;
