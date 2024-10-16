@@ -674,6 +674,7 @@ METHOD(authenticator_t, process, status_t,
 
 #ifdef VC_AUTH
 	decentralized_identifier_t *did;
+	decentralized_identifier_type_t *did_type = DID_IOTA;
 	id = this->ike_sa->get_other_id(this->ike_sa);
 	if (!get_auth_octets_did_scheme(this, TRUE, id, this->ppk, &octets, &params))
 	{
@@ -682,10 +683,30 @@ METHOD(authenticator_t, process, status_t,
 	auth = this->ike_sa->get_auth_cfg(this->ike_sa, FALSE);
 	enumerator = lib->credmgr->create_did_enumerator(lib->credmgr,
 													DID_IOTA, id);
-	/* while (enumerator->enumerate(enumerator, &did))
+	while (enumerator->enumerate(enumerator, &did))
 	{
-		
-	} */
+		if(did->verify(did, octets, auth_data)) 
+		{
+			DBG1(DBG_IKE, "authentication of '%Y' with %N successful", id,
+					 signature_scheme_names, params->scheme);
+			status = SUCCESS;
+			/* auth->merge(auth, current_auth, FALSE);
+			auth->add(auth, AUTH_RULE_AUTH_CLASS, AUTH_CLASS_PUBKEY);
+			auth->add(auth, AUTH_RULE_IKE_SIGNATURE_SCHEME,
+					  signature_params_clone(params)); */
+		}
+		else
+		{
+			status = FAILED;
+			DBG1(DBG_IKE, "signature validation failed, looking for another DID");
+		}
+	}
+	if (status == NOT_FOUND)
+	{
+		DBG1(DBG_IKE, "no trusted %N DID found for '%Y'",
+			 did_type_names, did_type, id);
+	}
+	return status;
 #endif
 
 	INIT(params);

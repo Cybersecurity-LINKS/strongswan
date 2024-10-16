@@ -1563,6 +1563,7 @@ credential_manager_t *credential_manager_create()
 			.create_cert_enumerator = _create_cert_enumerator,
 #ifdef VC_AUTH
 			.create_vc_enumerator = _create_vc_enumerator,
+			.create_did_enumerator = _create_did_enumerator,
 #endif
 			.create_shared_enumerator = _create_shared_enumerator,
 			.create_cdp_enumerator = _create_cdp_enumerator,

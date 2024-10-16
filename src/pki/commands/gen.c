@@ -16,6 +16,10 @@
  */
 
 #include "pki.h"
+#ifdef VC_AUTH
+#include <credentials/dids/decentralized_identifier.h>
+#include <credentials/vcs/verifiable_credential.h>
+#endif
 
 /**
  * Generate a private key
@@ -24,6 +28,13 @@ static int gen()
 {
 	cred_encoding_type_t form = PRIVKEY_ASN1_DER;
 	key_type_t type = KEY_RSA;
+#ifdef VC_AUTH
+	decentralized_identifier_type_t did_type;
+	verifiable_credential_type_t vc_type;
+	bool vc_gen = FALSE;
+	decentralized_identifier_t *did;
+	verifiable_credential_t *vc;
+#endif
 	u_int size = 0, shares = 0, threshold = 1;
 	private_key_t *key;
 	chunk_t encoding;
@@ -57,6 +68,14 @@ static int gen()
 				{
 					type = KEY_BLISS;
 				}
+#ifdef VC_AUTH
+				else if (streq(arg, "iota"))
+				{
+					did_type = DID_IOTA;
+					vc_type = VC_DATA_MODEL_2_0;
+					vc_gen = TRUE;
+				}
+#endif
 				else
 				{
 					return command_usage("invalid key type");
@@ -123,6 +142,13 @@ static int gen()
 				break;
 		}
 	}
+#ifdef VC_AUTH
+	if (vc_gen == TRUE && did_type == DID_IOTA) 
+	{
+		did = lib->creds->create(lib->creds, CRED_DECENTRALIZED_IDENTIFIER, did_type, BUILD_END);
+		vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, vc_type, BUILD_END);
+	}
+#endif
 	if (type == KEY_RSA && shares)
 	{
 		if (threshold > shares)

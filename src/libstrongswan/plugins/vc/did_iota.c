@@ -7,6 +7,8 @@
 #include <asn1/asn1.h>
 #include <asn1/asn1_parser.h>
 
+#define DID_SIGSIZE 187
+
 extern Wallet *w; 
 typedef struct private_did_iota_t private_did_iota_t;
 
@@ -50,9 +52,21 @@ METHOD(decentralized_identifier_t, sign, bool,
 	if(signature->ptr == NULL)
 		return false;
 
-	signature->len = 64;
+	signature->len = 187;
 
 	return true;
+}
+
+METHOD(decentralized_identifier_t, verify, bool,
+	private_did_iota_t *this, chunk_t data, chunk_t signature)
+{	
+	rvalue_t res;
+	printf("data.len in did_iota verify is: %d\n\n", data.len);
+	printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
+	res = did_verify(this->did_oe, data.ptr, data.len, signature.ptr, signature.len);
+	if(res.code == 1)
+		return true;
+	return false;
 }
 
 METHOD(decentralized_identifier_t, get_ref, decentralized_identifier_t*,
@@ -95,7 +109,15 @@ METHOD(decentralized_identifier_t, destroy, void,
 /**
  * See header.
  */
-did_iota_t *did_load(decentralized_identifier_type_t type, va_list args)
+did_iota_t *did_iota_gen(decentralized_identifier_type_t type, va_list args)
+{
+	return NULL;
+}
+
+/**
+ * See header.
+ */
+did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
 {
     private_did_iota_t *this;
 	chunk_t jwt = chunk_empty;
@@ -120,6 +142,7 @@ did_iota_t *did_load(decentralized_identifier_type_t type, va_list args)
             .did = {
                 .get_type = _get_type,
 				.sign = _sign,
+				.verify = _verify,
 				.equals = decentralized_identifier_equals,
 				.get_ref = _get_ref,
 				/* .get_internal_did = _get_internal_did,

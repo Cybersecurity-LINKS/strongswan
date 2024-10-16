@@ -21,6 +21,16 @@ struct did_iota_t {
 };
 
 /**
+ * Generate a IOTA DID Document
+ * 
+ * @param type		type of the decentralized identifier, must be IOTA
+ * @param args		builder_part_t argument list
+ * @return 			generated DID, NULL on failure 
+ */
+
+did_iota_t *did_iota_gen(decentralized_identifier_type_t type, va_list args);
+
+/**
  * Load a DID
  * 
  * @param type		type of the decentralized identifier, must be IOTA
@@ -28,7 +38,7 @@ struct did_iota_t {
  * @return 			loaded DID, NULL on failure 
  */
 
-did_iota_t *did_load(decentralized_identifier_type_t type, va_list args);
+did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args);
 
 #endif
 #endif

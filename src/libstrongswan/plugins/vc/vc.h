@@ -20,6 +20,16 @@ struct vc_t {
 };
 
 /**
+ * Generate a VC
+ * 
+ * @param type		type of the verifiable credential, must be DATA MODEL 2.0
+ * @param args		builder_part_t argument list
+ * @return 			Generated VC, NULL on failure 
+ */
+
+vc_t *vc_gen(verifiable_credential_type_t type, va_list args);
+
+/**
  * Load a VC
  * 
  * @param type		type of the verifiable credential, must be DATA MODEL 2.0

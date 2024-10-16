@@ -43,6 +43,15 @@ struct decentralized_identifier_t {
 	bool (*sign)(decentralized_identifier_t *this, chunk_t data, chunk_t *signature);
 
 	/**
+	 * Verifies a signature against a chunk of data.
+	 *
+	 * @param data		data to check signature against
+ 	 * @param signature	signature to check
+	 * @return			TRUE if signature matches
+	 */
+	bool (*verify)(decentralized_identifier_t *this, chunk_t data, chunk_t signature);
+
+	/**
 	 * Check if two decentralized identifiers are equal.
 	 *
 	 * @param other		other decentralized identifier
