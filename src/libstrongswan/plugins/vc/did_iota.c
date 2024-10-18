@@ -37,6 +37,44 @@ METHOD(decentralized_identifier_t, get_type, decentralized_identifier_type_t,
 	return DID_IOTA;
 }
 
+METHOD(decentralized_identifier_t, get_encoding, bool,
+	private_did_iota_t *this, cred_encoding_type_t type, chunk_t *encoding)
+{
+	bool success = TRUE;
+	char *did_doc;
+
+    switch(type)
+    {   
+		case DID_PEM:
+		{
+			chunk_t der_encoding;
+			did_doc = get_did(this->did_oe);
+			encoding->ptr = did_doc;
+			encoding->len = strlen(did_doc);
+			der_encoding = *encoding;
+
+			//fprintf(stderr, "did_doc in get encoding is %s\n\n", encoding->ptr);
+			//fprintf(stderr, "did_doc len in get encoding is %d\n\n", encoding->len);
+
+			success = lib->encoding->encode(lib->encoding, DID_PEM, NULL, 
+								encoding, CRED_PART_DID_ASN1_DER, der_encoding, CRED_PART_END);
+			chunk_clear(&der_encoding);
+			return success;
+		}
+		case DID_ASN1_DER:
+		{
+			did_doc = get_did(this->did_oe);
+			if(!did_doc)
+				success = FALSE;
+			encoding->ptr = did_doc;
+			encoding->len = strlen(did_doc);
+			return success;	
+		}
+		default:
+			return FALSE;
+    }
+}
+
 METHOD(decentralized_identifier_t, sign, bool,
 	private_did_iota_t *this, chunk_t data, chunk_t *signature)
 {	
@@ -110,8 +148,56 @@ METHOD(decentralized_identifier_t, destroy, void,
  * See header.
  */
 did_iota_t *did_iota_gen(decentralized_identifier_type_t type, va_list args)
-{
-	return NULL;
+{	
+	private_did_iota_t *this;
+	Did *did;
+	char *did_doc = NULL;
+
+	while (TRUE)
+    {
+        switch (va_arg(args, builder_part_t))
+        {
+            case BUILD_END:
+                break;
+            default:
+                NULL;
+        }
+        break;
+    }
+
+	if (w == NULL)
+	{
+		w = setup("./test-stuff/server.stronghold", "server");
+		if (w == NULL)
+			return NULL;
+	}
+
+	did = did_create(w);
+	if (!did)
+		return NULL;
+
+	did_doc = get_did(did);
+	if(!did_doc)
+		return NULL;
+	//fprintf(stderr, "this is the did_doc in did_iota_gen: %s\n\n", did_doc);
+
+	INIT(this,
+        .public = {
+            .did = {
+                .get_type = _get_type,
+				.get_encoding = _get_encoding,
+				.sign = _sign,
+				.verify = _verify,
+				.equals = decentralized_identifier_equals,
+				.get_ref = _get_ref,
+				.destroy = _destroy,
+            },
+        }, 
+        .ref = 1,
+		.did_oe = did,
+    ); 
+
+	return this ? &this->public : NULL;
 }
 
 /**
@@ -141,6 +227,7 @@ did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
         .public = {
             .did = {
                 .get_type = _get_type,
+				.get_encoding = _get_encoding,
 				.sign = _sign,
 				.verify = _verify,
 				.equals = decentralized_identifier_equals,

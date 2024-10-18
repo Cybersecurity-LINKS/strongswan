@@ -23,7 +23,7 @@ struct private_vc_t {
 	vc_t public;
 
     //Wallet *w;
-    Did *did;
+    //Did *did;
     Vc *vc_oe;
 
     /**
@@ -41,29 +41,39 @@ METHOD(verifiable_credential_t, get_type, verifiable_credential_type_t,
 METHOD(verifiable_credential_t, get_encoding, bool,
 	private_vc_t *this, cred_encoding_type_t type, chunk_t *encoding)
 {
-	/* This is the code used in cert->get_type, let's do it a little different */
-    /* if (type == VC_ASN1_DER)
-	{
-		*encoding = chunk_clone(this->encoding);
-		return TRUE;
-	}
+    bool success = TRUE;
+	char *vc_jwt;
 
-	return lib->encoding->encode(lib->encoding, type, NULL, encoding,
-						CRED_PART_X509_ASN1_DER, this->encoding, CRED_PART_END); */
-    if (type == VC_ASN1_DER)
+    switch(type)
     {   
-        char *jwt;
-        jwt = get_vc(this->vc_oe);
-        encoding->ptr = jwt;
-        encoding->len = strlen(jwt);
+        case VC_PEM:
+		{
+			chunk_t der_encoding;
+			vc_jwt = get_vc(this->vc_oe);
+			encoding->ptr = vc_jwt;
+			encoding->len = strlen(vc_jwt);
+			der_encoding = *encoding;
 
-        printf("jwt in get encoding is %s\n\n", encoding->ptr);
-        printf("jwt len in get encoding is %d\n\n", encoding->len);
-        /* Maybe I should encode it in DER format */
-        return TRUE;
+			/* fprintf(stderr, "vc_jwt in get encoding is %s\n\n", encoding->ptr);
+			fprintf(stderr, "vc_jwt len in get encoding is %d\n\n", encoding->len); */
+
+			success = lib->encoding->encode(lib->encoding, VC_PEM, NULL, 
+								encoding, CRED_PART_VC_ASN1_DER, der_encoding, CRED_PART_END);
+			chunk_clear(&der_encoding);
+			return success;
+		}
+        case VC_ASN1_DER:
+        {   
+            vc_jwt = get_vc(this->vc_oe);
+            if(!vc_jwt)
+                success = FALSE;
+            encoding->ptr = vc_jwt;
+            encoding->len = strlen(vc_jwt);
+            return success;
+        }
+        default:
+            return FALSE;
     }
-
-    return false;
 }
 
 /* METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const char *stronghold_path, const char *password) {
@@ -103,7 +113,73 @@ METHOD(verifiable_credential_t, destroy, void,
  * See header.
  */
 vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
-{
+{   
+    private_vc_t *this;
+    chunk_t did_doc = chunk_empty;
+    Did *did;
+
+    while (TRUE)
+    {
+        switch (va_arg(args, builder_part_t))
+        {   
+            case BUILD_VC_CREATE:
+                did_doc = va_arg(args, chunk_t);
+                continue;
+            case BUILD_END:
+                break;
+            default:
+                NULL;
+        }
+        break;
+    }
+
+    if(did_doc.ptr == NULL)
+        return NULL;
+    
+    char oid[20] = {'\0'};
+	char fragment[100] = {'\0'};
+	char privkey[300] = {'\0'};
+	char did_document[1000] = {'\0'};
+
+    if (w == NULL)
+	{
+		w = setup("./test-stuff/server.stronghold", "server");
+		if (w == NULL)
+			return NULL;
+	}
+
+    if(sscanf((char *)did_doc.ptr, "%s%s%s%s", oid, fragment, privkey, did_document) == EOF)
+        return NULL;
+
+    /* fprintf(stderr, "This is the content of oid[20]: %s\n\n", oid);
+	fprintf(stderr, "This is the content of fragment[100]: %s\n\n", fragment);
+	fprintf(stderr, "This is the content of privkey[100]: %s\n\n", privkey);
+	fprintf(stderr, "This is the content of did_document[1000]: %s\n\n", did_document); */
+    did = set_did(did_document, fragment, privkey);
+    if (!did)
+        return NULL;
+
+    INIT(this,
+        .public = {
+            .vc = {
+                .get_type = _get_type,
+                .get_encoding = _get_encoding,
+                .equals = verifiable_credential_equals,
+                .get_ref = _get_ref,
+                .destroy = _destroy,
+            },
+        }, 
+        .ref = 1,
+    );
+
+    this->vc_oe = vc_create(w, did, "leonardo"); 
+    if(!this->vc_oe)
+        return NULL;
+
+    //fprintf(stderr, "This the VC just created: %s\n\n", get_vc(this->vc_oe));
+
+    return this ? &this->public : NULL;
+
     return NULL;
 }
 

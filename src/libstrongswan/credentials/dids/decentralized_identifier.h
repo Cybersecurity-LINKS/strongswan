@@ -3,7 +3,7 @@
 #define DECENTRALIZED_IDENTIFIER_H_
 
 #include <utils/identification.h>
-/* #include "../../plugins/identity.h" */
+#include <credentials/cred_encoding.h>
 
 typedef struct decentralized_identifier_t decentralized_identifier_t;
 typedef enum decentralized_identifier_type_t decentralized_identifier_type_t;
@@ -21,6 +21,17 @@ enum decentralized_identifier_type_t {
  */
 extern enum_name_t *did_type_names;
 
+/** 
+ * DID Signature scheme for signature creation
+ */ 
+
+enum did_signature_scheme_t {
+	/** Unknown signature scheme */
+	SIGN_DID_UNKNOWN,
+	/* EdDSA on Curve 25519 */
+	SIGN_DID_ED25519,
+};
+
 /*
 * An abstract DID
 */
@@ -33,6 +44,16 @@ struct decentralized_identifier_t {
 	 */
 	decentralized_identifier_type_t (*get_type)(decentralized_identifier_t *this);
 
+	/**
+	 * Get the decentralized identifier in an encoded form as a chunk.
+	 *
+	 * @param type		type of the encoding, one of DID_*
+	 * @param encoding	encoding of the did, allocated
+	 * @return			TRUE if encoding supported
+	 */
+	bool (*get_encoding)(decentralized_identifier_t *this, cred_encoding_type_t type,
+						 chunk_t *encoding);
+	
 	/**
 	 * Create a signature over a chunk of data.
 	 *

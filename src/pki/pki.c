@@ -64,6 +64,11 @@ bool get_form(char *form, cred_encoding_type_t *enc, credential_type_t type)
 			case CRED_PUBLIC_KEY:
 				*enc = PUBKEY_PEM;
 				return TRUE;
+#ifdef VC_AUTH
+			case CRED_DECENTRALIZED_IDENTIFIER:
+				*enc = DID_PEM;
+				return TRUE;
+#endif
 			default:
 				return FALSE;
 		}
@@ -225,6 +230,10 @@ void set_file_mode(FILE *stream, cred_encoding_type_t enc)
 		case PRIVKEY_PEM:
 		case PUBKEY_PEM:
 			/* keep default text mode */
+#ifdef VC_AUTH
+		case VC_PEM:
+		case DID_PEM:
+#endif
 			return;
 		default:
 			/* switch to binary mode */

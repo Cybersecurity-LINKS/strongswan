@@ -37,7 +37,7 @@ struct verifiable_credential_t {
 	 * Get the verifiable credential in an encoded form as a chunk.
 	 *
 	 * @param type		type of the encoding, one of VC_*
-	 * @param encoding	encoding of the key, allocated
+	 * @param encoding	encoding of the vc, allocated
 	 * @return			TRUE if encoding supported
 	 */
 	bool (*get_encoding)(verifiable_credential_t *this, cred_encoding_type_t type,

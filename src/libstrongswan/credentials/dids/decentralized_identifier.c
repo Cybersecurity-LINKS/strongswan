@@ -5,6 +5,11 @@ ENUM(did_type_names, DID_IOTA, DID_IOTA,
 	"IOTA",
 );
 
+ENUM(did_signature_scheme, SIGN_DID_UNKNOWN, SIGN_DID_ED25519,
+	"DID_UNKNOWN",
+	"DID_ED25519",
+);
+
 /**
  * See header.
  */

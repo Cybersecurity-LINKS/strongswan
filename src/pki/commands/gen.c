@@ -144,9 +144,66 @@ static int gen()
 	}
 #ifdef VC_AUTH
 	if (vc_gen == TRUE && did_type == DID_IOTA) 
-	{
+	{	
+		chunk_t did_encoding;
+		chunk_t vc_encoding;
 		did = lib->creds->create(lib->creds, CRED_DECENTRALIZED_IDENTIFIER, did_type, BUILD_END);
-		vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, vc_type, BUILD_END);
+		if(!did)
+		{
+			fprintf(stderr, "did document generation failed\n");
+			return 1;
+		}
+
+		if(!did->get_encoding(did, DID_ASN1_DER, &did_encoding))
+		{
+			fprintf(stderr, "did document encoding failed\n");
+			did->destroy(did);
+			return 1;
+		}
+
+		vc = lib->creds->create(lib->creds, CRED_VERIFIABLE_CREDENTIAL, vc_type, BUILD_VC_CREATE, did_encoding, BUILD_END);
+		if(!vc)
+		{
+			fprintf(stderr, "verifiable credential generation failed\n");
+			return 1;
+		}
+
+		chunk_clear(&did_encoding);
+		if(!did->get_encoding(did, DID_PEM, &did_encoding))
+		{
+			fprintf(stderr, "did document PEM encoding failed\n");
+			did->destroy(did);
+			return 1;
+		}
+		//did->destroy(did);
+		/* All the stdout content gets redirected to the file that contains the DID */
+		set_file_mode(stdout, DID_PEM);
+		if (fwrite(did_encoding.ptr, did_encoding.len, 1, stdout) != 1)
+		{
+			fprintf(stderr, "writing DID document failed\n");
+			free(did_encoding.ptr);
+			return 1;
+		}
+		free(did_encoding.ptr);
+
+		if(!vc->get_encoding(vc, VC_PEM, &vc_encoding))
+		{
+			fprintf(stderr, "VC PEM encoding failed\n");
+			vc->destroy(vc);
+			return 1;
+		}
+		//vc->destroy(vc);
+		/* All the stderr content gets redirected to the file that contains the VC */
+		set_file_mode(stderr, VC_PEM);
+		if (fwrite(vc_encoding.ptr, vc_encoding.len, 1, stderr) != 1)
+		{
+			fprintf(stderr, "writing VC document failed\n");
+			free(vc_encoding.ptr);
+			return 1;
+		}
+		free(vc_encoding.ptr);
+		
+		return 0;
 	}
 #endif
 	if (type == KEY_RSA && shares)

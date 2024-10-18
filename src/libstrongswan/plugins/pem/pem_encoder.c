@@ -131,6 +131,22 @@ bool pem_encoder_encode(cred_encoding_type_t type, chunk_t *encoding,
 				label = "ATTRIBUTE CERTIFICATE";
 				break;
 			}
+#ifdef VC_AUTH
+		case DID_PEM:
+			if (cred_encoding_args(args, CRED_PART_DID_ASN1_DER, &asn1, CRED_PART_END)) 
+			{	
+				/* Here I use PRIVATE KEY to keep it compliant with the OpenSSL provider */
+				label = "PRIVATE KEY";
+				break;
+			}
+		case VC_PEM:
+			if (cred_encoding_args(args, CRED_PART_VC_ASN1_DER, &asn1, CRED_PART_END)) 
+			{	
+				/* Here I use PUBLIC KEY to keep it compliant with the OpenSSL provider */
+				label = "PUBLIC KEY";
+				break;
+			}
+#endif
 		default:
 			return FALSE;
 	}

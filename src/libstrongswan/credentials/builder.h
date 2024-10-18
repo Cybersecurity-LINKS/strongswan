@@ -102,6 +102,8 @@ enum builder_part_t {
 	/** OCSP AuthorityInfoAccess locations, linked_list_t* containing char* */
 	BUILD_OCSP_ACCESS_LOCATIONS,
 #ifdef VC_AUTH
+	/** create a vc, given the did */
+	BUILD_VC_CREATE, 
 	/** a vc, verifiable_credential_t */
 	BUILD_VC_VERIFY,
 #endif

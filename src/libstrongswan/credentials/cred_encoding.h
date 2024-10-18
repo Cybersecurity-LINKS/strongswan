@@ -100,8 +100,16 @@ enum cred_encoding_type_t {
 	/** PGP Packet encoded certificate */
 	CERT_PGP_PKT,
 
+#ifdef VC_AUTH
 	/* DER encoded VC */
 	VC_ASN1_DER,
+	/* DER encoded DID Document */
+	DID_ASN1_DER,
+	/* PEM encoded VC */
+	VC_PEM,
+	/* PEM encoded DID */
+	DID_PEM,
+#endif
 
 	CRED_ENCODING_MAX,
 };
@@ -156,6 +164,13 @@ enum cred_encoding_part_t {
 	CRED_PART_BLISS_PUB_ASN1_DER,
 	/** a DER encoded BLISS private key */
 	CRED_PART_BLISS_PRIV_ASN1_DER,
+
+#ifdef VC_AUTH
+	/** a DER encoded DID Document */
+	CRED_PART_DID_ASN1_DER,
+	/** a DER encoded VC */
+	CRED_PART_VC_ASN1_DER,  
+#endif
 
 	CRED_PART_END,
 };
