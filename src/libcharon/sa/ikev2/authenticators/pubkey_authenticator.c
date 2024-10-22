@@ -575,9 +575,6 @@ METHOD(authenticator_t, build, status_t,
 	private_pubkey_authenticator_t *this, message_t *message)
 {
 	private_key_t *private;
-#ifdef VC_AUTH
-	decentralized_identifier_t *did;
-#endif	
 	identification_t *id;
 	auth_cfg_t *auth;
 	status_t status;
@@ -586,10 +583,18 @@ METHOD(authenticator_t, build, status_t,
 	id = this->ike_sa->get_my_id(this->ike_sa);
 	auth = this->ike_sa->get_auth_cfg(this->ike_sa, TRUE);
 #ifdef VC_AUTH
-	did = lib->credmgr->get_did(lib->credmgr, DID_IOTA, id);
-	if(did){
+	peer_cfg_t *peer_cfg;
+	peer_cfg = this->ike_sa->get_peer_cfg(this->ike_sa);
+	
+	if(peer_cfg->get_vc_policy(peer_cfg) == VC_ALWAYS_SEND || 
+		(peer_cfg->get_vc_policy(peer_cfg) == VC_SEND_IF_ASKED && this->ike_sa->has_condition(this->ike_sa, COND_VCREQ_SEEN)))
+	{	
+		decentralized_identifier_t *did;
+		
+		did = lib->credmgr->get_did_private(lib->credmgr, DID_IOTA, id);
 		status = sign_did(this, auth, did, id, message);
 		//did->destroy(did);
+			
 		return status;
 	}
 #endif
@@ -673,42 +678,49 @@ METHOD(authenticator_t, process, status_t,
 	}
 
 #ifdef VC_AUTH
-	decentralized_identifier_t *did;
-	decentralized_identifier_type_t did_type = DID_IOTA;
-	id = this->ike_sa->get_other_id(this->ike_sa);
-	if (!get_auth_octets_did_scheme(this, TRUE, id, this->ppk, &octets, &params))
-	{
-		return FAILED;
-	}
-	auth = this->ike_sa->get_auth_cfg(this->ike_sa, FALSE);
-	enumerator = lib->credmgr->create_did_enumerator(lib->credmgr,
-													DID_IOTA, id);
-	while (enumerator->enumerate(enumerator, &did, &current_auth))
-	{
-		if(did->verify(did, octets, auth_data)) 
+	ike_cfg_t *ike_cfg;
+	ike_cfg = this->ike_sa->get_ike_cfg(this->ike_sa);
+	if(ike_cfg->send_vc_certreq(ike_cfg)) {
+		/* decentralized_identifier_t *did;
+		decentralized_identifier_type_t did_type = DID_IOTA; */
+		verifiable_credential_t *vc;
+		verifiable_credential_type_t vc_type = VC_DATA_MODEL_2_0;
+		id = this->ike_sa->get_other_id(this->ike_sa);
+		if (!get_auth_octets_did_scheme(this, TRUE, id, this->ppk, &octets, &params))
 		{
-			DBG1(DBG_IKE, "authentication of '%Y' with %N successful", id,
-					 did_type_names, did_type);
+			return FAILED;
 		}
-		else
+		auth = this->ike_sa->get_auth_cfg(this->ike_sa, FALSE);
+		/* enumerator = lib->credmgr->create_did_enumerator(lib->credmgr,
+														DID_IOTA, id); */
+		enumerator = lib->credmgr->create_did_public_enumerator(lib->credmgr,
+														VC_DATA_MODEL_2_0, id, auth);
+		while (enumerator->enumerate(enumerator, &vc, &current_auth))
 		{
-			status = FAILED;
-			DBG1(DBG_IKE, "signature validation failed, looking for another DID");
-			break;
+			if(vc->verify(vc, octets, auth_data)) 
+			{
+				DBG1(DBG_IKE, "authentication of '%Y' with %N successful", id,
+						vc_type_names, vc_type);
+				status = SUCCESS;
+				auth->merge(auth, current_auth, FALSE);
+				auth->add(auth, AUTH_RULE_AUTH_CLASS, AUTH_CLASS_PUBKEY);
+				/* auth->add(auth, AUTH_RULE_IKE_SIGNATURE_SCHEME,
+						signature_params_clone(params)); */
+				break;
+			}
+			else
+			{
+				status = FAILED;
+				DBG1(DBG_IKE, "signature validation failed, looking for another DID");
+			}
 		}
-		status = SUCCESS;
-		auth->merge(auth, current_auth, FALSE);
-		auth->add(auth, AUTH_RULE_AUTH_CLASS, AUTH_CLASS_PUBKEY);
-		/* auth->add(auth, AUTH_RULE_IKE_SIGNATURE_SCHEME,
-				signature_params_clone(params)); */
-		break;
+		if (status == NOT_FOUND)
+		{
+			DBG1(DBG_IKE, "no trusted %N DID found for '%Y'",
+				vc_type_names, vc_type, id);
+		}
+		return status;
 	}
-	if (status == NOT_FOUND)
-	{
-		DBG1(DBG_IKE, "no trusted %N DID found for '%Y'",
-			 did_type_names, did_type, id);
-	}
-	return status;
 #endif
 
 	INIT(params);

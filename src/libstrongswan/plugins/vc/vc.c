@@ -23,7 +23,7 @@ struct private_vc_t {
 	vc_t public;
 
     //Wallet *w;
-    //Did *did;
+    Did *did;
     Vc *vc_oe;
 
     /**
@@ -76,13 +76,21 @@ METHOD(verifiable_credential_t, get_encoding, bool,
     }
 }
 
-/* METHOD(verifiable_credential_t, wallet_setup, bool, private_vc_t *this, const char *stronghold_path, const char *password) {
-    this->w = setup("ciao", "ciao");
+METHOD(verifiable_credential_t, verify, bool,
+	private_vc_t *this, chunk_t data, chunk_t signature)
+{
+    rvalue_t res;
 
-    if(this->w != NULL)
-        return TRUE;
-    return FALSE;
-} */
+    if(this->did == NULL)
+        return FALSE;
+
+	printf("data.len in did_iota verify is: %d\n\n", data.len);
+	printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
+	res = did_verify(this->did, data.ptr, data.len, signature.ptr, signature.len);
+	if(res.code == 1)
+		return TRUE;
+	return FALSE;
+}
 
 METHOD(verifiable_credential_t, get_ref, verifiable_credential_t*,
 	private_vc_t *this)
@@ -164,6 +172,7 @@ vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
             .vc = {
                 .get_type = _get_type,
                 .get_encoding = _get_encoding,
+                .verify = _verify,
                 .equals = verifiable_credential_equals,
                 .get_ref = _get_ref,
                 .destroy = _destroy,
@@ -216,6 +225,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
             .vc = {
                 .get_type = _get_type,
                 .get_encoding = _get_encoding,
+                .verify = _verify,
                 .equals = verifiable_credential_equals,
                 .get_ref = _get_ref,
                 .destroy = _destroy,
@@ -242,18 +252,18 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
 	}
 
     if(vc_vrfy) {
-        Did *did;
+        /* Did *did; */
         chunk_t data = chunk_empty;
         const char *did_jwt = NULL;
-        did = vc_verify(w, vc);
-        if (!did)
+        this->did = vc_verify(w, vc);
+        if (!this->did)
             return NULL;
-        did_jwt = get_did(did);
+        /* did_jwt = get_did(did);
         data.ptr = (u_char *)did_jwt;
         data.len = strlen(did_jwt);
         if(!lib->creds->create(lib->creds, CRED_DECENTRALIZED_IDENTIFIER, DID_IOTA, 
 							BUILD_BLOB_ASN1_DER, data, BUILD_END))
-            return NULL;
+            return NULL; */
     }
 
     this->vc_oe = set_vc(vc);

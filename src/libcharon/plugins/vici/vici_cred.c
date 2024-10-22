@@ -702,7 +702,7 @@ vici_cred_t *vici_cred_create(vici_dispatcher_t *dispatcher,
 				.create_cert_enumerator = (void*)return_null,
 #ifdef VC_AUTH
 				.create_vc_enumerator = (void*)return_null,	
-				.create_did_enumerator = (void*)return_null,
+				.create_did_private_enumerator = (void*)return_null,
 #endif
 				.create_shared_enumerator = (void*)return_null,
 				.create_cdp_enumerator = (void*)return_null,

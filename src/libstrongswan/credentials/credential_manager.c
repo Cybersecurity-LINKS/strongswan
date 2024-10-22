@@ -146,7 +146,7 @@ typedef struct {
 	private_credential_manager_t *this;
 	decentralized_identifier_type_t type;
 	identification_t* id;
-} did_data_t;
+} did_private_data_t;
 #endif
 
 /** enumerator over local and global sets */
@@ -304,6 +304,46 @@ METHOD(credential_manager_t, get_cert, certificate_t*,
 	enumerator->destroy(enumerator);
 	return found;
 }
+
+#ifdef VC_AUTH
+/**
+ * cleanup function for verifiable credential
+ */
+static void destroy_vc_data(vc_data_t *data)
+{
+	data->this->lock->unlock(data->this->lock);
+	/* TODO */
+	/* Maybe I should free internal fields manually */
+	free(data);
+}
+
+/**
+ * enumerator constructor for verifiable credentials
+ */
+static enumerator_t *create_vc(credential_set_t *set, vc_data_t *data)
+{
+	return set->create_vc_enumerator(set, data->type, data->vcid);
+}
+
+/**
+ * Create an enumerator over vcs
+ */
+METHOD(credential_manager_t, create_vc_enumerator, enumerator_t*,
+	private_credential_manager_t *this, verifiable_credential_type_t vc, identification_t *vcid)
+{
+	vc_data_t *data;
+
+	INIT(data,
+		.this = this,
+		.type = vc,
+		.vcid = vcid,
+	);
+	this->lock->read_lock(this->lock);
+	return enumerator_create_nested(create_sets_enumerator(this),
+									(void*)create_vc, data,
+									(void*)destroy_vc_data);
+}
+#endif
 
 
 /**
@@ -1118,6 +1158,53 @@ METHOD(credential_manager_t, create_public_enumerator, enumerator_t*,
 	return &enumerator->public;
 }
 
+#ifdef VC_AUTH
+/**
+ * enumerator for public keys of DID Documents
+ */
+typedef struct {
+	/** implements enumerator_t interface */
+	enumerator_t public;
+	/** credset wrapper around auth config */
+	auth_cfg_wrapper_t *wrapper;
+} did_public_enumerator_t;
+
+METHOD(enumerator_t, did_public_enumerate, bool,
+	did_public_enumerator_t *this, va_list args)
+{
+	return TRUE;
+}
+
+METHOD(enumerator_t, did_public_destroy, void,
+	did_public_enumerator_t *this)
+{
+	return;
+}
+
+METHOD(credential_manager_t, create_did_public_enumerator, enumerator_t*,
+	private_credential_manager_t *this, verifiable_credential_type_t type, identification_t *id,
+	auth_cfg_t *auth)
+{
+	did_public_enumerator_t *enumerator;
+
+	INIT(enumerator,
+		.public = {
+			.enumerate = enumerator_enumerate_default,
+			.venumerate = _public_enumerate,
+			.destroy = _public_destroy,
+		},
+	);
+
+	if (auth)
+	{
+		enumerator->wrapper = auth_cfg_wrapper_create(auth);
+		add_local_set(this, &enumerator->wrapper->set, FALSE);
+	}
+	this->lock->read_lock(this->lock);
+	return &enumerator->public;
+}
+#endif
+
 /**
  * Check if a helper contains a certificate as trust anchor
  */
@@ -1374,7 +1461,7 @@ METHOD(credential_manager_t, get_private, private_key_t*,
 /**
  * cleanup function for decentralized identifier
  */
-static void destroy_did_data(did_data_t *data)
+static void destroy_did_private_data(did_private_data_t *data)
 {
 	data->this->lock->unlock(data->this->lock);
 	/* TODO */
@@ -1383,17 +1470,20 @@ static void destroy_did_data(did_data_t *data)
 }
 
 /**
- * enumerator constructor for verifiable credentials
+ * enumerator constructor for private keys of DID Documents
  */
-static enumerator_t *create_did(credential_set_t *set, did_data_t *data)
+static enumerator_t *create_did_private(credential_set_t *set, did_private_data_t *data)
 {
-	return set->create_did_enumerator(set, data->type, data->id);
+	return set->create_did_private_enumerator(set, data->type, data->id);
 }
 
-METHOD(credential_manager_t, create_did_enumerator, enumerator_t*,
+/* 
+ * Create an enumerator over private keys of DID Documents
+ */
+static enumerator_t* create_did_private_enumerator(
 	private_credential_manager_t *this, decentralized_identifier_type_t did, identification_t *id)
 {
-	did_data_t *data;
+	did_private_data_t *data;
 
 	INIT(data,
 		.this = this,
@@ -1402,19 +1492,19 @@ METHOD(credential_manager_t, create_did_enumerator, enumerator_t*,
 	);
 	this->lock->read_lock(this->lock);
 	return enumerator_create_nested(create_sets_enumerator(this),
-									(void*)create_did, data,
-									(void*)destroy_did_data);
+									(void*)create_did_private, data,
+									(void*)destroy_did_private_data);
 }
 #endif
 
 #ifdef VC_AUTH
-METHOD(credential_manager_t, get_did, decentralized_identifier_t*,
+METHOD(credential_manager_t, get_did_private, decentralized_identifier_t*,
 	private_credential_manager_t *this, decentralized_identifier_type_t did, identification_t *id) 
 {
 	decentralized_identifier_t *found = NULL;
 	enumerator_t *enumerator;
 	
-	enumerator = create_did_enumerator(this, did, id);
+	enumerator = create_did_private_enumerator(this, did, id);
 	if(enumerator->enumerate(enumerator, &found))
 	{
 		found->get_ref(found);
@@ -1511,46 +1601,6 @@ METHOD(credential_manager_t, destroy, void,
 	free(this);
 }
 
-#ifdef VC_AUTH
-/**
- * cleanup function for verifiable credential
- */
-static void destroy_vc_data(vc_data_t *data)
-{
-	data->this->lock->unlock(data->this->lock);
-	/* TODO */
-	/* Maybe I should free internal fields manually */
-	free(data);
-}
-
-/**
- * enumerator constructor for verifiable credentials
- */
-static enumerator_t *create_vc(credential_set_t *set, vc_data_t *data)
-{
-	return set->create_vc_enumerator(set, data->type, data->vcid);
-}
-
-/**
- * Create an enumerator over vcs
- */
-METHOD(credential_manager_t, create_vc_enumerator, enumerator_t*,
-	private_credential_manager_t *this, verifiable_credential_type_t vc, identification_t *vcid)
-{
-	vc_data_t *data;
-
-	INIT(data,
-		.this = this,
-		.type = vc,
-		.vcid = vcid,
-	);
-	this->lock->read_lock(this->lock);
-	return enumerator_create_nested(create_sets_enumerator(this),
-									(void*)create_vc, data,
-									(void*)destroy_vc_data);
-}
-#endif
-
 /*
  * see header file
  */
@@ -1563,7 +1613,6 @@ credential_manager_t *credential_manager_create()
 			.create_cert_enumerator = _create_cert_enumerator,
 #ifdef VC_AUTH
 			.create_vc_enumerator = _create_vc_enumerator,
-			.create_did_enumerator = _create_did_enumerator,
 #endif
 			.create_shared_enumerator = _create_shared_enumerator,
 			.create_cdp_enumerator = _create_cdp_enumerator,
@@ -1571,11 +1620,14 @@ credential_manager_t *credential_manager_create()
 			.get_shared = _get_shared,
 			.get_private = _get_private,
 #ifdef VC_AUTH
-			.get_did = _get_did,
+			.get_did_private = _get_did_private,
 #endif
 			.get_ocsp = _get_ocsp,
 			.create_trusted_enumerator = _create_trusted_enumerator,
 			.create_public_enumerator = _create_public_enumerator,
+#ifdef VC_AUTH
+			.create_did_public_enumerator = _create_did_public_enumerator,
+#endif
 			.flush_cache = _flush_cache,
 			.cache_cert = _cache_cert,
 			.issued_by = _issued_by,

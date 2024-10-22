@@ -82,15 +82,7 @@ struct mem_cred_t {
 	 */
 	void (*add_vc)(mem_cred_t *this, verifiable_credential_t *vc);
 #endif
-//#ifdef VC_AUTH
-	/**
-	 * Remove a verifiable credential from the credential set.
-	 *
-	 * @param vc			vc to remove
-	 * @return				TRUE if the key was found and removed
-	 */
-//	bool (*remove_vc)(mem_cred_t *this,  verifiable_credential_t *vc);	
-//#endif
+
 #ifdef VC_AUTH
 	/**
 	 * Add a verifiable credential to the credential set, returning a reference to it or
@@ -101,6 +93,7 @@ struct mem_cred_t {
 	 */
 	verifiable_credential_t *(*add_vc_ref)(mem_cred_t *this, verifiable_credential_t *vc);
 #endif
+
 #ifdef VC_AUTH
 	/**
 	 * Get an existing reference to the same verifiable credential.
@@ -117,7 +110,7 @@ struct mem_cred_t {
 
 #ifdef VC_AUTH
 /**
-	 * Add a verifiable credential to the credential set.
+	 * Add a DID to the credential set.
 	 *
 	 * @param did			DID, reference gets owned by set
 	 */

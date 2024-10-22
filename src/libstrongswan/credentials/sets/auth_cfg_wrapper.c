@@ -197,6 +197,65 @@ METHOD(credential_set_t, create_enumerator, enumerator_t*,
 	return &enumerator->public;
 }
 
+#ifdef VC_AUTH
+/**
+ * enumerator for auth_cfg_wrapper_t.create_cert_enumerator()
+ */
+typedef struct {
+	/** implements enumerator_t */
+	enumerator_t public;
+	/** inner enumerator from auth_cfg */
+	enumerator_t *inner;
+	/** wrapped auth round */
+	auth_cfg_t *auth;
+	/** enumerated vc type */
+	verifiable_credential_type_t vc;
+	/** enumerated id */
+	identification_t *id;
+} vc_wrapper_enumerator_t;
+
+METHOD(enumerator_t, vc_enumerate, bool,
+	vc_wrapper_enumerator_t *this, va_list args)
+{
+	auth_rule_t rule;
+	verifiable_credential_t *current, **vc;
+
+	VA_ARGS_VGET(args, vc);
+
+	while (this->inner->enumerate(this->inner, &rule, &current))
+	{
+		if (this->vc != VC_ANY && this->vc != current->get_type(current))
+		{
+			continue;
+		}
+		/* Here I should add some checks about the VC subject */
+		*vc = current;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+METHOD(credential_set_t, create_vc_enumerator, enumerator_t*,
+	private_auth_cfg_wrapper_t *this, verifiable_credential_type_t vc,
+	identification_t *id)
+{
+	vc_wrapper_enumerator_t *enumerator;
+
+	INIT(enumerator,
+		.public = {
+			.enumerate = enumerator_enumerate_default,
+			.venumerate = _vc_enumerate,
+			.destroy = _wrapper_enumerator_destroy,
+		},
+		.auth = this->auth,
+		.vc = vc,
+		.id = id,
+		.inner = this->auth->create_enumerator(this->auth),
+	);
+	return &enumerator->public;
+}
+#endif
+
 METHOD(auth_cfg_wrapper_t, destroy, void,
 	private_auth_cfg_wrapper_t *this)
 {
@@ -218,8 +277,7 @@ auth_cfg_wrapper_t *auth_cfg_wrapper_create(auth_cfg_t *auth)
 				.create_cdp_enumerator = (void*)return_null,
 				.cache_cert = (void*)nop,
 #ifdef VC_AUTH
-				.create_vc_enumerator = (void*)return_null,
-				.create_did_enumerator = (void*)return_null,
+				.create_vc_enumerator = (void*)_create_vc_enumerator,
 #endif
 			},
 			.destroy = _destroy,

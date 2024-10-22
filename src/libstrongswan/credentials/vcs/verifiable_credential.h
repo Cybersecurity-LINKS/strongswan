@@ -44,13 +44,13 @@ struct verifiable_credential_t {
 						 chunk_t *encoding);
 
     /**
-     * Initializes the wallet
-     * 
-     * @param stronghold_path path to store the wallet
-     * @param password password to access the wallet
-     * @return TRUE if the wallet is created succesfully
-     */
-//   bool (*wallet_setup)(verifiable_credential_t *this, const char *stronghold_path, const char *password);
+	 * Verifies a signature against a chunk of data with the public key of the DID Document.
+	 *
+	 * @param data		data to check signature against
+ 	 * @param signature	signature to check
+	 * @return			TRUE if signature matches
+	 */
+	bool (*verify)(verifiable_credential_t *this, chunk_t data, chunk_t signature);
 
     /**
 	 * Check if two verifiable credentials are equal.

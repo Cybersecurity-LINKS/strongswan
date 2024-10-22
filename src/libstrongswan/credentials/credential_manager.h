@@ -191,16 +191,16 @@ struct credential_manager_t {
 
 	#ifdef VC_AUTH
 	/**
-	 * Get a DID to create a signature.
+	 * Get the private key of a DID Document to create a signature.
 	 * 
-	 * The get_did() method gets a DID identified by either
+	 * The get_did_private() method gets a DID identified by either
 	 * the DID itself or an id the DID belongs to.
 	 * 
 	 * @param type		type of the DID to get
 	 * @param id		identification the DID belongs to
 	 * @return			decentralized_identifier_t, NULL if none found
 	 */ 
-	decentralized_identifier_t* (*get_did)(credential_manager_t *this, decentralized_identifier_type_t did,
+	decentralized_identifier_t* (*get_did_private)(credential_manager_t *this, decentralized_identifier_type_t did,
 								  identification_t *id);
 	#endif
 
@@ -257,19 +257,20 @@ struct credential_manager_t {
 
 #ifdef VC_AUTH
 	/**
-	 * Create an enumerator over trusted decentralized identifiers.
+	 * Create an enumerator over trusted VCs received by the peer to retrieve the public key of the DID document.
 	 *
-	 * This method creates an enumerator over trusted decentralized identifiers to verify a
-	 * signature created by id. The auth parameter contains additional
+	 * This method creates an enumerator over trusted verifiable credentials to retrieve the public key
+	 * in the DID Document and so verify a signature created by id. The auth parameter contains additional
 	 * authentication infos.
 	 * The resulting enumerator enumerates over decentralized_identifier_t *.
 	 *
 	 * @param did		type of the did to get
 	 * @param id		owner of the did, signer of the signature
+	 * @param auth			authentication infos
 	 * @return			enumerator
 	 */
-	enumerator_t* (*create_did_enumerator)(credential_manager_t *this, 
-					decentralized_identifier_type_t did, identification_t *id);
+	enumerator_t* (*create_did_public_enumerator)(credential_manager_t *this, 
+					verifiable_credential_type_t vc, identification_t *id, auth_cfg_t *auth);
 #endif
 
 	/**

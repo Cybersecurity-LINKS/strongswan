@@ -61,6 +61,18 @@ struct credential_set_t {
 	 */
 	enumerator_t *(*create_private_enumerator)(credential_set_t *this,
 						key_type_t type, identification_t *id);
+
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over private keys of DID Documents
+	 *
+	 * @param did		kind of decentralized identifier
+	 * @return			enumerator over the decentralized identifier
+	 */
+	enumerator_t *(*create_did_private_enumerator)(credential_set_t *this,
+								decentralized_identifier_type_t did, identification_t *id);
+#endif
+
 	/**
 	 * Create an enumerator over certificates (certificate_t).
 	 *
@@ -73,6 +85,18 @@ struct credential_set_t {
 	enumerator_t *(*create_cert_enumerator)(credential_set_t *this,
 						certificate_type_t cert, key_type_t key,
 						identification_t *id, bool trusted);
+
+#ifdef VC_AUTH
+	/**
+	 * Create an enumerator over verifiable credentials.
+	 *
+	 * @param vc		kind of verifiable credential
+	 * @return			enumerator over the credentials
+	 */
+	enumerator_t *(*create_vc_enumerator)(credential_set_t *this,
+								verifiable_credential_type_t vc, identification_t *id);
+#endif
+
 	/**
 	 * Create an enumerator over shared keys (shared_key_t).
 	 *
@@ -108,28 +132,6 @@ struct credential_set_t {
 	 * @param cert		certificate to cache
 	 */
 	void (*cache_cert)(credential_set_t *this, certificate_t *cert);
-
-#ifdef VC_AUTH
-	/**
-	 * Create an enumerator over verifiable credentials.
-	 *
-	 * @param vc		kind of verifiable credential
-	 * @return			enumerator over the credentials
-	 */
-	enumerator_t *(*create_vc_enumerator)(credential_set_t *this,
-								verifiable_credential_type_t vc, identification_t *id);
-#endif
-
-#ifdef VC_AUTH
-	/**
-	 * Create an enumerator over decentralized identifier.
-	 *
-	 * @param did		kind of decentralized identifier
-	 * @return			enumerator over the decentralized identifier
-	 */
-	enumerator_t *(*create_did_enumerator)(credential_set_t *this,
-								decentralized_identifier_type_t did, identification_t *id);
-#endif
 };
 
 #endif /** CREDENTIAL_SET_H_ @}*/

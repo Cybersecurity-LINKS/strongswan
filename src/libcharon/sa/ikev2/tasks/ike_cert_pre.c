@@ -382,7 +382,7 @@ static void process_vc(cert_payload_t *payload, auth_cfg_t *auth,
 
 	vc = payload->get_vc(payload);
 	if (vc)
-	{
+	{	
 		DBG1(DBG_IKE, "received VC");
 		auth->add(auth, AUTH_HELPER_SUBJECT_VC, vc);
 	}
