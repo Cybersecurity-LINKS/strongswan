@@ -53,8 +53,8 @@ METHOD(decentralized_identifier_t, get_encoding, bool,
 			encoding->len = strlen(did_doc);
 			der_encoding = *encoding;
 
-			//fprintf(stderr, "did_doc in get encoding is %s\n\n", encoding->ptr);
-			//fprintf(stderr, "did_doc len in get encoding is %d\n\n", encoding->len);
+			//fprintf(stderr, "did_doc in get encoding is %s", encoding->ptr);
+			//fprintf(stderr, "did_doc len in get encoding is %d", encoding->len);
 
 			success = lib->encoding->encode(lib->encoding, DID_PEM, NULL, 
 								encoding, CRED_PART_DID_ASN1_DER, der_encoding, CRED_PART_END);
@@ -160,7 +160,7 @@ did_iota_t *did_iota_gen(decentralized_identifier_type_t type, va_list args)
             case BUILD_END:
                 break;
             default:
-                NULL;
+                return NULL;
         }
         break;
     }
@@ -222,6 +222,8 @@ did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
 		}
 		break;
 	}
+
+	printf("This is the content of the decoded did_document.pem BEFORE: %s\n\n", jwt.ptr);
     
     INIT(this,
         .public = {

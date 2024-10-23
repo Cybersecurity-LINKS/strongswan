@@ -1165,6 +1165,10 @@ METHOD(credential_manager_t, create_public_enumerator, enumerator_t*,
 typedef struct {
 	/** implements enumerator_t interface */
 	enumerator_t public;
+	/** enumerator over candidate peer VCs */
+	enumerator_t *inner;
+	/** reference to the credential_manager */
+	private_credential_manager_t *this; 
 	/** credset wrapper around auth config */
 	auth_cfg_wrapper_t *wrapper;
 } did_public_enumerator_t;
@@ -1172,12 +1176,34 @@ typedef struct {
 METHOD(enumerator_t, did_public_enumerate, bool,
 	did_public_enumerator_t *this, va_list args)
 {
-	return TRUE;
+	verifiable_credential_t **vc;
+	auth_cfg_t **auth;
+
+	VA_ARGS_VGET(args, vc, auth);
+	
+	while (this->inner->enumerate(this->inner, vc, auth))
+	{
+		if(vc)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 METHOD(enumerator_t, did_public_destroy, void,
 	did_public_enumerator_t *this)
-{
+{	
+	this->inner->destroy(this->inner);
+	if (this->wrapper)
+	{
+		remove_local_set(this->this, &this->wrapper->set);
+		this->wrapper->destroy(this->wrapper);
+	}
+	this->this->lock->unlock(this->this->lock);
+	/* check for delayed certificate cache queue */
+	//cache_queue(this->this);
+	free(this);
+
 	return;
 }
 
@@ -1190,9 +1216,10 @@ METHOD(credential_manager_t, create_did_public_enumerator, enumerator_t*,
 	INIT(enumerator,
 		.public = {
 			.enumerate = enumerator_enumerate_default,
-			.venumerate = _public_enumerate,
-			.destroy = _public_destroy,
+			.venumerate = _did_public_enumerate,
+			.destroy = _did_public_destroy,
 		},
+		.this = this,
 	);
 
 	if (auth)
@@ -1200,6 +1227,8 @@ METHOD(credential_manager_t, create_did_public_enumerator, enumerator_t*,
 		enumerator->wrapper = auth_cfg_wrapper_create(auth);
 		add_local_set(this, &enumerator->wrapper->set, FALSE);
 	}
+	
+	enumerator->inner = create_vc_enumerator(this, type, id);
 	this->lock->read_lock(this->lock);
 	return &enumerator->public;
 }

@@ -914,6 +914,10 @@ vici_authority_t *vici_authority_create(vici_dispatcher_t *dispatcher)
 				.create_shared_enumerator = (void*)return_null,
 				.create_cdp_enumerator = _create_cdp_enumerator,
 				.cache_cert = (void*)nop,
+#ifdef VC_AUTH
+				.create_vc_enumerator = (void*)return_null,
+				.create_did_private_enumerator = (void*)return_null,
+#endif
 			},
 			.add_ca_cert = _add_ca_cert,
 			.clear_ca_certs = _clear_ca_certs,
