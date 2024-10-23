@@ -54,8 +54,8 @@ METHOD(verifiable_credential_t, get_encoding, bool,
 			encoding->len = strlen(vc_jwt);
 			der_encoding = *encoding;
 
-			/* fprintf(stderr, "vc_jwt in get encoding is %s\n\n", encoding->ptr);
-			fprintf(stderr, "vc_jwt len in get encoding is %d\n\n", encoding->len); */
+			//fprintf(stderr, "vc_jwt in get encoding is %s", encoding->ptr);
+			//fprintf(stderr, "vc_jwt len in get encoding is %d", encoding->len);
 
 			success = lib->encoding->encode(lib->encoding, VC_PEM, NULL, 
 								encoding, CRED_PART_VC_ASN1_DER, der_encoding, CRED_PART_END);
@@ -83,6 +83,8 @@ METHOD(verifiable_credential_t, verify, bool,
 
     if(this->did == NULL)
         return FALSE;
+
+    printf("This is the DID Document in verify: %s\n\n", get_did(this->did));
 
 	printf("data.len in did_iota verify is: %d\n\n", data.len);
 	printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
@@ -136,7 +138,7 @@ vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
             case BUILD_END:
                 break;
             default:
-                NULL;
+                return NULL;
         }
         break;
     }
@@ -258,6 +260,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
         this->did = vc_verify(w, vc);
         if (!this->did)
             return NULL;
+        printf("This is the DID Document in vc_load: %s\n\n", get_did(this->did));
         /* did_jwt = get_did(did);
         data.ptr = (u_char *)did_jwt;
         data.len = strlen(did_jwt);

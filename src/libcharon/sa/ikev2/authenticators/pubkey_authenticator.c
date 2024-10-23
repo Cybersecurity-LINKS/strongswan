@@ -766,7 +766,7 @@ METHOD(authenticator_t, process, status_t,
 	{
 		if (public->verify(public, params->scheme, params->params, octets,
 						   auth_data) &&
-			is_compliant_cert(current_auth))
+ 			is_compliant_cert(current_auth))
 		{
 			if (auth_method != AUTH_DS)
 			{

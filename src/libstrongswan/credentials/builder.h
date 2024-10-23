@@ -104,7 +104,7 @@ enum builder_part_t {
 #ifdef VC_AUTH
 	/** create a vc, given the did */
 	BUILD_VC_CREATE, 
-	/** a vc, verifiable_credential_t */
+	/** parse a vc and a did during the vc verify */
 	BUILD_VC_VERIFY,
 #endif
 	/** certificate path length constraint */
