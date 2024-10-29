@@ -55,3 +55,6 @@ coverage/
 /*.includes
 test-driver
 nbproject/
+
+#vc_auth stuff
+test-stuff/

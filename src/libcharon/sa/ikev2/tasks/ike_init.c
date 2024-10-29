@@ -30,6 +30,10 @@
 #include <encoding/payloads/ke_payload.h>
 #include <encoding/payloads/nonce_payload.h>
 
+/** Material to measure time */
+struct timeval tv1 = {0, 0};
+struct timeval tv2 = {0, 0};
+
 /** maximum retries to do with cookies/other ke methods */
 #define MAX_RETRIES 5
 
@@ -835,6 +839,9 @@ METHOD(task_t, build_i, status_t,
 
 	ike_cfg = this->ike_sa->get_ike_cfg(this->ike_sa);
 
+	/** Function to measure time, does not belong to the library */
+	gettimeofday(&tv1, NULL);
+
 	DBG0(DBG_IKE, "initiating IKE_SA %s[%d] to %H",
 		 this->ike_sa->get_name(this->ike_sa),
 		 this->ike_sa->get_unique_id(this->ike_sa),
@@ -960,6 +967,9 @@ METHOD(task_t, process_r_multi_ke, status_t,
 METHOD(task_t, process_r,  status_t,
 	private_ike_init_t *this, message_t *message)
 {
+	/** Function to measure time, does not belong to the library */
+	gettimeofday(&tv1, NULL);
+	
 	DBG0(DBG_IKE, "%H is initiating an IKE_SA", message->get_source(message));
 	this->ike_sa->set_state(this->ike_sa, IKE_CONNECTING);
 

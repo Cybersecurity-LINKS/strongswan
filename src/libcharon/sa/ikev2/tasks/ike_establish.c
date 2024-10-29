@@ -62,6 +62,12 @@ static void establish(private_ike_establish_t *this)
 		 this->ike_sa->get_other_id(this->ike_sa));
 	this->ike_sa->set_state(this->ike_sa, IKE_ESTABLISHED);
 	charon->bus->ike_updown(charon->bus, this->ike_sa, TRUE);
+
+	/** Functions to measure time, do not belong to the library */
+	gettimeofday(&tv2, NULL);
+    printf ("Total time = %f seconds\n\n",
+                             (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+                             (double) (tv2.tv_sec - tv1.tv_sec));
 }
 
 METHOD(task_t, build_r, status_t,

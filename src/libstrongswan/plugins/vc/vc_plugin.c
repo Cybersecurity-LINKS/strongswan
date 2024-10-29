@@ -5,6 +5,7 @@
 
 #include <library.h>
 
+Wallet *w = NULL;
 typedef struct private_vc_plugin_t private_vc_plugin_t;
 
 /**
@@ -64,6 +65,14 @@ plugin_t *vc_plugin_create()
         },
     );
 
+    /* Everytime the plugin is loaded the wallet setup occurs, 
+     * this may be annoying during pki --gen when not generating
+     * VCs, but for now it is the most convenient position. 
+     */
+    w = setup("./test-stuff/server.stronghold", "server");
+	if (w == NULL)
+		return NULL;
+    
     return &this->public.plugin;
 }
 #endif

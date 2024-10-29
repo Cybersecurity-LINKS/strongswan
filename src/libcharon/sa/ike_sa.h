@@ -48,6 +48,9 @@ typedef struct ike_sa_t ike_sa_t;
 #include <credentials/auth_cfg.h>
 #include <networking/packet.h>
 
+/** Material to measure time, does not belong to the library */
+extern struct timeval tv1, tv2;
+
 /**
  * Timeout in seconds after that a half open IKE_SA gets deleted.
  */

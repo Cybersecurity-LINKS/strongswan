@@ -9,7 +9,6 @@
 
 #define DID_SIGSIZE 187
 
-extern Wallet *w; 
 typedef struct private_did_iota_t private_did_iota_t;
 
 /*
@@ -165,6 +164,7 @@ did_iota_t *did_iota_gen(decentralized_identifier_type_t type, va_list args)
         break;
     }
 
+	/* It should never be NULL because it is initialized in vc_plugin_create() of vc_plugin.c */
 	if (w == NULL)
 	{
 		w = setup("./test-stuff/server.stronghold", "server");
@@ -250,6 +250,7 @@ did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
 	char privkey[300] = {'\0'};
 	char did_document[1000] = {'\0'};
 
+	/* It should never be NULL because it is initialized in vc_plugin_create() of vc_plugin.c */
 	if (w == NULL)
 	{
 		w = setup("./test-stuff/server.stronghold", "server");

@@ -8,7 +8,6 @@
 #include <asn1/asn1.h>
 #include <asn1/asn1_parser.h>
 
-Wallet *w = NULL;
 typedef struct private_vc_t private_vc_t;
 
 /*
@@ -151,6 +150,7 @@ vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
 	char privkey[300] = {'\0'};
 	char did_document[1000] = {'\0'};
 
+    /* It should never be NULL because it is initialized in vc_plugin_create() of vc_plugin.c */
     if (w == NULL)
 	{
 		w = setup("./test-stuff/server.stronghold", "server");
@@ -246,6 +246,8 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
         return NULL;
 
     printf("This is the content of vc[2000]: %s\n\n", vc);
+    
+    /* It should never be NULL because it is initialized in vc_plugin_create() of vc_plugin.c */
     if (w == NULL)
 	{
 		w = setup("./test-stuff/server.stronghold", "server");
