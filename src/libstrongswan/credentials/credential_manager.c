@@ -1171,6 +1171,8 @@ typedef struct {
 	private_credential_manager_t *this; 
 	/** credset wrapper around auth config */
 	auth_cfg_wrapper_t *wrapper;
+	/** currently enumerating auth config */
+	auth_cfg_t *auth;
 } did_public_enumerator_t;
 
 METHOD(enumerator_t, did_public_enumerate, bool,
@@ -1180,11 +1182,17 @@ METHOD(enumerator_t, did_public_enumerate, bool,
 	auth_cfg_t **auth;
 
 	VA_ARGS_VGET(args, vc, auth);
+
+	this->auth = auth_cfg_create();
 	
 	while (this->inner->enumerate(this->inner, vc, auth))
 	{
 		if(vc)
+		{	
+        	this->auth->add(this->auth, AUTH_RULE_SUBJECT_VC, (*vc)->get_ref(*vc));
+			*auth = this->auth;
 			return TRUE;
+        }
 	}
 
 	return FALSE;

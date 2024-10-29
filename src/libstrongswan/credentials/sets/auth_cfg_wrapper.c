@@ -278,6 +278,7 @@ auth_cfg_wrapper_t *auth_cfg_wrapper_create(auth_cfg_t *auth)
 				.cache_cert = (void*)nop,
 #ifdef VC_AUTH
 				.create_vc_enumerator = (void*)_create_vc_enumerator,
+				.create_did_private_enumerator = (void*)return_null,
 #endif
 			},
 			.destroy = _destroy,
