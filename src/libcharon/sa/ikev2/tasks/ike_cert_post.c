@@ -369,7 +369,7 @@ static void build_certs(private_ike_cert_post_t *this, message_t *message)
 			/* FALL */
 		case VC_ALWAYS_SEND:
 			auth = this->ike_sa->get_auth_cfg(this->ike_sa, TRUE);
-			add_cert_vc(this, auth, message); 
+			add_cert_vc(this, auth, message);
 		break;
 	}
 #endif
@@ -377,11 +377,22 @@ static void build_certs(private_ike_cert_post_t *this, message_t *message)
 
 METHOD(task_t, build_i, status_t,
 	private_ike_cert_post_t *this, message_t *message)
-{
+{	
 	if (message->get_exchange_type(message) == IKE_AUTH)
-	{
+	{	
+		/** Material to measure time, does not belong to the library */
+		struct timeval tv3, tv4;
+		gettimeofday(&tv3, NULL);
+
 		build_certs(this, message);
+
+		gettimeofday(&tv4, NULL);
+		printf ("Total time initiator builds CERT = %f seconds\n\n",
+				(double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+				(double) (tv4.tv_sec - tv3.tv_sec));
+
 	}
+
 	return NEED_MORE;
 }
 
@@ -395,13 +406,23 @@ METHOD(task_t, build_r, status_t,
 	private_ike_cert_post_t *this, message_t *message)
 {
 	if (message->get_exchange_type(message) == IKE_AUTH)
-	{
+	{	
+		/** Material to measure time, does not belong to the library */
+		struct timeval tv3, tv4;
+		gettimeofday(&tv3, NULL);
+
 		build_certs(this, message);
+	
+		gettimeofday(&tv4, NULL);
+		printf ("Total time responder builds CERT = %f seconds\n\n",
+				(double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+				(double) (tv4.tv_sec - tv3.tv_sec));
 	}
 	if (!this->ike_sa->has_condition(this->ike_sa, COND_AUTHENTICATED))
 	{	/* stay alive, we might have additional rounds with certs */
 		return NEED_MORE;
 	}
+	
 	return SUCCESS;
 }
 

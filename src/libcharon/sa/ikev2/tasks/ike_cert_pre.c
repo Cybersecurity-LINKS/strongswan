@@ -682,7 +682,18 @@ METHOD(task_t, process_r, status_t,
 	if (message->get_exchange_type(message) == IKE_AUTH)
 	{	/* handle certreqs/certs in any IKE_AUTH, just in case */
 		process_certreqs(this, message);
+
+		/** Material to measure time, does not belong to the library */
+		struct timeval tv3, tv4;
+		gettimeofday(&tv3, NULL);
+
 		process_certs(this, message);
+
+		gettimeofday(&tv4, NULL);
+		printf ("Total time responder processes CERT = %f seconds\n\n",
+			(double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+			(double) (tv4.tv_sec - tv3.tv_sec));
+			
 		if (final_auth(message))
 		{
 			return SUCCESS;
@@ -710,7 +721,18 @@ METHOD(task_t, process_i, status_t,
 			process_certreqs(this, message);
 			break;
 		case IKE_AUTH:
+			/** Material to measure time, does not belong to the library */
+			printf("\n");
+			struct timeval tv3, tv4;
+			gettimeofday(&tv3, NULL);
+
 			process_certs(this, message);
+			
+			gettimeofday(&tv4, NULL);
+			printf ("Total time initiator processes CERT = %f seconds\n\n",
+				(double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+				(double) (tv4.tv_sec - tv3.tv_sec));
+			
 			if (final_auth(message))
 			{
 				return SUCCESS;

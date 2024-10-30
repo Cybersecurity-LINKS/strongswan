@@ -68,6 +68,7 @@ static void establish(private_ike_establish_t *this)
     printf ("Total time = %f seconds\n\n",
                              (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
                              (double) (tv2.tv_sec - tv1.tv_sec));
+	fflush(stdout);
 }
 
 METHOD(task_t, build_r, status_t,

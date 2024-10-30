@@ -223,7 +223,11 @@ METHOD(enumerator_t, vc_enumerate, bool,
 	VA_ARGS_VGET(args, vc);
 
 	while (this->inner->enumerate(this->inner, &rule, &current))
-	{
+	{	
+		if(rule != AUTH_HELPER_SUBJECT_VC) 
+		{
+			continue;
+		}
 		if (this->vc != VC_ANY && this->vc != current->get_type(current))
 		{
 			continue;

@@ -707,6 +707,10 @@ METHOD(task_t, build_i, status_t,
 			return NEED_MORE;
 	}
 
+	/** Material to measure time, does not belong to the library */
+	struct timeval tv3, tv4;
+	gettimeofday(&tv3, NULL);
+
 	if (!this->peer_cfg)
 	{
 		this->peer_cfg = this->ike_sa->get_peer_cfg(this->ike_sa);
@@ -850,6 +854,12 @@ METHOD(task_t, build_i, status_t,
 	{
 		this->do_another_auth = FALSE;
 	}
+
+	gettimeofday(&tv4, NULL);
+    printf ("Total time initiator builds AUTH = %f seconds\n\n",
+            (double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+            (double) (tv4.tv_sec - tv3.tv_sec)); 
+	
 	return NEED_MORE;
 }
 
@@ -885,6 +895,10 @@ METHOD(task_t, process_r, status_t,
 		default:
 			return NEED_MORE;
 	}
+
+	/** Material to measure time, does not belong to the library */
+	struct timeval tv3, tv4;
+	gettimeofday(&tv3, NULL);
 
 	if (!this->my_auth && this->do_another_auth)
 	{
@@ -1054,6 +1068,12 @@ METHOD(task_t, process_r, status_t,
 			return NEED_MORE;
 		}
 	}
+
+	gettimeofday(&tv4, NULL);
+    printf ("Total time responder processes AUTH = %f seconds\n\n",
+            (double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+            (double) (tv4.tv_sec - tv3.tv_sec)); 
+
 	return NEED_MORE;
 }
 
@@ -1108,6 +1128,10 @@ METHOD(task_t, build_r, status_t,
 		default:
 			return NEED_MORE;
 	}
+
+	/** Material to measure time, does not belong to the library */
+	struct timeval tv3, tv4;
+	gettimeofday(&tv3, NULL);
 
 	if (this->authentication_failed || !this->peer_cfg)
 	{
@@ -1289,6 +1313,12 @@ METHOD(task_t, build_r, status_t,
 	}
 
 	this->ike_sa->set_condition(this->ike_sa, COND_AUTHENTICATED, TRUE);
+	
+	gettimeofday(&tv4, NULL);
+	printf ("Total time responder builds AUTH = %f seconds\n\n",
+				(double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+				(double) (tv4.tv_sec - tv3.tv_sec)); 
+
 	return SUCCESS;
 
 peer_auth_failed:
@@ -1398,6 +1428,10 @@ METHOD(task_t, process_i, status_t,
 		default:
 			return NEED_MORE;
 	}
+
+	/** Material to measure time, does not belong to the library */
+	struct timeval tv3, tv4;
+	gettimeofday(&tv3, NULL);
 
 	enumerator = message->create_payload_enumerator(message);
 	while (enumerator->enumerate(enumerator, &payload))
@@ -1633,6 +1667,12 @@ METHOD(task_t, process_i, status_t,
 	{
 		this->ike_sa->handle_redirect(this->ike_sa, this->redirect_to);
 	}
+
+	gettimeofday(&tv4, NULL);
+    printf ("Total time initiator processes AUTH = %f seconds\n\n",
+            (double) (tv4.tv_usec - tv3.tv_usec) / 1000000 +
+            (double) (tv4.tv_sec - tv3.tv_sec)); 
+
 	return SUCCESS;
 
 peer_auth_failed:
