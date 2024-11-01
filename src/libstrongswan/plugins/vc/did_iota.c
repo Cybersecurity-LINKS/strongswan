@@ -77,7 +77,7 @@ METHOD(decentralized_identifier_t, get_encoding, bool,
 METHOD(decentralized_identifier_t, sign, bool,
 	private_did_iota_t *this, chunk_t data, chunk_t *signature)
 {	
-	printf("This is the DID Document in sign: %s\n\n", get_did(this->did_oe));
+	//printf("This is the DID Document in sign: %s\n\n", get_did(this->did_oe));
 	if(w == NULL){
 		printf("w is null\n\n");
 	}
@@ -98,8 +98,8 @@ METHOD(decentralized_identifier_t, verify, bool,
 	private_did_iota_t *this, chunk_t data, chunk_t signature)
 {	
 	rvalue_t res;
-	printf("data.len in did_iota verify is: %d\n\n", data.len);
-	printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
+	//printf("data.len in did_iota verify is: %d\n\n", data.len);
+	//printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
 	res = did_verify(this->did_oe, data.ptr, data.len, signature.ptr, signature.len);
 	if(res.code == 1)
 		return true;
@@ -223,7 +223,7 @@ did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
 		break;
 	}
 
-	printf("This is the content of the decoded did_document.pem BEFORE: %s\n\n", jwt.ptr);
+	//printf("This is the content of the decoded did_document.pem BEFORE: %s\n\n", jwt.ptr);
     
     INIT(this,
         .public = {
@@ -261,18 +261,18 @@ did_iota_t *did_iota_load(decentralized_identifier_type_t type, va_list args)
 	if(sscanf((char *)jwt.ptr, "%s%s%s%s", oid, fragment, privkey, did_document) == EOF)
         return NULL;
 
-	printf("This is the content of the decoded did_document.pem: %s\n\n", jwt.ptr);
+	//printf("This is the content of the decoded did_document.pem: %s\n\n", jwt.ptr);
 	
-	printf("This is the content of oid[20]: %s\n\n", oid);
-	printf("This is the content of fragment[100]: %s\n\n", fragment);
-	printf("This is the content of privkey[100]: %s\n\n", privkey);
-	printf("This is the content of did_document[1000]: %s\n\n", did_document);
+	//printf("This is the content of oid[20]: %s\n\n", oid);
+	//printf("This is the content of fragment[100]: %s\n\n", fragment);
+	//printf("This is the content of privkey[100]: %s\n\n", privkey);
+	//printf("This is the content of did_document[1000]: %s\n\n", did_document);
 	
 
 	this->did_oe = set_did(did_document, fragment, privkey);
 	if (this->did_oe != NULL)
 	{
-		printf("This is the load DID Document: %s\n", get_did(this->did_oe));
+		//printf("This is the load DID Document: %s\n", get_did(this->did_oe));
 		return &this->public;
 	}
 

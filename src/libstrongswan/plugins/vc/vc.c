@@ -83,10 +83,10 @@ METHOD(verifiable_credential_t, verify, bool,
     if(this->did == NULL)
         return FALSE;
 
-    printf("This is the DID Document in verify: %s\n\n", get_did(this->did));
+    //printf("This is the DID Document in verify: %s\n\n", get_did(this->did));
 
-	printf("data.len in did_iota verify is: %d\n\n", data.len);
-	printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
+	//printf("data.len in did_iota verify is: %d\n\n", data.len);
+	//printf("signature.len in did_iota verify is: %d\n\n", signature.len); 
 	res = did_verify(this->did, data.ptr, data.len, signature.ptr, signature.len);
 	if(res.code == 1)
 		return TRUE;
@@ -238,14 +238,14 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
 
     if(jwt.ptr == NULL)
         return NULL;
-    printf("This is the content of jwt.ptr: %s\n\n", jwt.ptr);
+    //printf("This is the content of jwt.ptr: %s\n\n", jwt.ptr);
     
     char oid[20];
     char vc[2000];
     if(sscanf((char *)jwt.ptr, "%s %s", oid, vc) == EOF)
         return NULL;
 
-    printf("This is the content of vc[2000]: %s\n\n", vc);
+    //printf("This is the content of vc[2000]: %s\n\n", vc);
     
     /* It should never be NULL because it is initialized in vc_plugin_create() of vc_plugin.c */
     if (w == NULL)
@@ -262,7 +262,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
         this->did = vc_verify(w, vc);
         if (!this->did)
             return NULL;
-        printf("This is the DID Document in vc_load: %s\n\n", get_did(this->did));
+        //printf("This is the DID Document in vc_load: %s\n\n", get_did(this->did));
         /* did_jwt = get_did(did);
         data.ptr = (u_char *)did_jwt;
         data.len = strlen(did_jwt);
@@ -274,7 +274,7 @@ vc_t *vc_load(verifiable_credential_type_t type, va_list args)
     this->vc_oe = set_vc(vc);
     if (this->vc_oe != NULL) 
     {
-        printf("This is the loaded vc: %s\n\n", get_vc(this->vc_oe));
+        //printf("This is the loaded vc: %s\n\n", get_vc(this->vc_oe));
         return &this->public; 
     }
 
