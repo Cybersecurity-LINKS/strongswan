@@ -239,6 +239,13 @@ METHOD(enumerator_t, vc_enumerate, bool,
 	return FALSE;
 }
 
+METHOD(enumerator_t, vc_wrapper_enumerator_destroy, void,
+	vc_wrapper_enumerator_t *this)
+{
+	this->inner->destroy(this->inner);
+	free(this);
+}
+
 METHOD(credential_set_t, create_vc_enumerator, enumerator_t*,
 	private_auth_cfg_wrapper_t *this, verifiable_credential_type_t vc,
 	identification_t *id)
@@ -249,7 +256,7 @@ METHOD(credential_set_t, create_vc_enumerator, enumerator_t*,
 		.public = {
 			.enumerate = enumerator_enumerate_default,
 			.venumerate = _vc_enumerate,
-			.destroy = _wrapper_enumerator_destroy,
+			.destroy = _vc_wrapper_enumerator_destroy,
 		},
 		.auth = this->auth,
 		.vc = vc,

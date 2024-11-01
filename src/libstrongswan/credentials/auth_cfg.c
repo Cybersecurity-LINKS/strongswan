@@ -59,6 +59,7 @@ ENUM(auth_rule_names, AUTH_RULE_IDENTITY, AUTH_HELPER_AC_CERT,
 	"RULE_CERT_POLICY",
 #ifdef VC_AUTH
 	"RULE_SUBJECT_VC",
+	"HELPER_SUBJECT_VC",
 #endif
 	"HELPER_IM_CERT",
 	"HELPER_SUBJECT_CERT",
@@ -87,6 +88,9 @@ static inline bool is_multi_value_rule(auth_rule_t type)
 		case AUTH_RULE_CERT_VALIDATION_SUSPENDED:
 		case AUTH_HELPER_SUBJECT_CERT:
 		case AUTH_HELPER_SUBJECT_HASH_URL:
+#ifdef VC_AUTH
+		case AUTH_HELPER_SUBJECT_VC:
+#endif
 		case AUTH_RULE_MAX:
 			return FALSE;
 		case AUTH_RULE_OCSP_VALIDATION:

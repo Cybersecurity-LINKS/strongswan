@@ -714,6 +714,8 @@ METHOD(authenticator_t, process, status_t,
 				DBG1(DBG_IKE, "signature validation failed, looking for another DID");
 			}
 		}
+		enumerator->destroy(enumerator);
+		chunk_free(&octets);
 		if (status == NOT_FOUND)
 		{
 			DBG1(DBG_IKE, "no trusted %N DID found for '%Y'",

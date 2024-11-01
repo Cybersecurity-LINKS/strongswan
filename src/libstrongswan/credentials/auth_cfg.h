@@ -119,12 +119,15 @@ enum auth_rule_t {
 	AUTH_RULE_IKE_SIGNATURE_SCHEME,
 	/** certificatePolicy constraint, numerical OID as char* */
 	AUTH_RULE_CERT_POLICY,
-
 #ifdef VC_AUTH
 	/** subject verifiable credential, verifiable_credential_t* */
 	AUTH_RULE_SUBJECT_VC,
 #endif
 
+#ifdef VC_AUTH
+	/** subject VC, verifiable_credential_t* */
+	AUTH_HELPER_SUBJECT_VC,
+#endif
 	/** intermediate certificate, certificate_t* */
 	AUTH_HELPER_IM_CERT,
 	/** subject certificate, certificate_t* */
@@ -137,10 +140,6 @@ enum auth_rule_t {
 	AUTH_HELPER_REVOCATION_CERT,
 	/** attribute certificate for authorization decisions, certificate_t */
 	AUTH_HELPER_AC_CERT,
-#ifdef VC_AUTH
-	/** subject VC, verifiable_credential_t* */
-	AUTH_HELPER_SUBJECT_VC,
-#endif
 
 	/** helper to determine the number of elements in this enum */
 	AUTH_RULE_MAX,
