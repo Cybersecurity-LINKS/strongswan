@@ -1,4 +1,8 @@
 /*
+ * Modifications Copyright 2024 Fondazione LINKS.
+ */
+
+/*
  * Copyright (C) 2022 Tobias Brunner
  *
  * Copyright (C) secunet Security Networks AG

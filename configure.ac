@@ -179,7 +179,7 @@ ARG_DISBL_SET([pubkey],         [disable RAW public key support plugin.])
 ARG_DISBL_SET([sshkey],         [disable SSH key decoding plugin.])
 ARG_DISBL_SET([x509],           [disable X509 certificate implementation plugin.])
 ARG_ENABL_SET([openxpki],       [enable OCSP responder accessing OpenXPKI certificate database.])
-ARG_ENABL_SET([vc],				[enable VC implementation plugin.])
+ARG_ENABL_SET([vc_iota],		[enable IOTA VC implementation plugin.])
 # fetcher/resolver plugins
 ARG_ENABL_SET([curl],           [enable CURL fetcher plugin to fetch files via libcurl. Requires libcurl.])
 ARG_ENABL_SET([files],          [enable simple file:// URI fetcher.])
@@ -1686,7 +1686,7 @@ ADD_PLUGIN([uci],                  [c charon])
 ADD_PLUGIN([addrblock],            [c charon])
 ADD_PLUGIN([unity],                [c charon])
 ADD_PLUGIN([counters],             [c charon])
-ADD_PLUGIN([vc],				   [s charon pki])
+ADD_PLUGIN([vc_iota],				   [s charon pki])
 
 AC_SUBST(charon_plugins)
 AC_SUBST(pool_plugins)
@@ -2062,7 +2062,7 @@ AC_CONFIG_FILES([
 	src/libstrongswan/plugins/newhope/Makefile
 	src/libstrongswan/plugins/newhope/tests/Makefile
 	src/libstrongswan/plugins/test_vectors/Makefile
-	src/libstrongswan/plugins/vc/Makefile
+	src/libstrongswan/plugins/vc_iota/Makefile
 	src/libstrongswan/tests/Makefile
 	src/libipsec/Makefile
 	src/libipsec/tests/Makefile

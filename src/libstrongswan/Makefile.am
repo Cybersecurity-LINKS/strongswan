@@ -721,9 +721,9 @@ endif
 endif
 
 if USE_VC
-  SUBDIRS += plugins/vc
+  SUBDIRS += plugins/vc_iota
 if MONOLITHIC
-  libstrongswan_la_LIBADD += plugins/vc/libstrongswan-vc.la
+  libstrongswan_la_LIBADD += plugins/vc_iota/libstrongswan-vc.la
 endif
 endif
 

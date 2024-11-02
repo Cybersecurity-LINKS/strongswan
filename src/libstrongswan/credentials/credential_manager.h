@@ -1,4 +1,8 @@
 /*
+ * Modifications Copyright 2024 Fondazione LINKS.
+ */
+
+/*
  * Copyright (C) 2015 Tobias Brunner
  * Copyright (C) 2007-2009 Martin Willi
  *

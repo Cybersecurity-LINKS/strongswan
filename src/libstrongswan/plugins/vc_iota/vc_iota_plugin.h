@@ -1,11 +1,5 @@
 /*
- * Modifications Copyright 2024 Fondazione LINKS.
- */
-
-/*
- * Copyright (C) 2010 Andreas Steffen
- *
- * Copyright (C) secunet Security Networks AG
+ * Copyright 2024 Fondazione LINKS.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,21 +12,27 @@
  * for more details.
  */
 
+#ifdef VC_AUTH
+#ifndef VC_PLUGIN_H_
+#define VC_PLUGIN_H_
+
+#include <plugins/plugin.h>
+#include <plugins/plugin_feature.h>
+
+
+typedef struct vc_plugin_t vc_plugin_t;
+
 /**
- * @defgroup pem_encoder pem_encoder
- * @{ @ingroup pem_p
+ * Plugin providing VC implementation
  */
+struct vc_plugin_t {
 
-#ifndef PEM_ENCODER_H_
-#define PEM_ENCODER_H_
+	/**
+	 * implements plugin interface
+	 */
+	plugin_t plugin;
+};
 
-#include <credentials/cred_encoding.h>
 
-/**
- * Encoding from ASN.1 to PEM format.
- */
-bool pem_encoder_encode(cred_encoding_type_t type, chunk_t *encoding,
-						va_list args);
-
-#endif /** PEM_ENCODER_H_ @}*/
-
+#endif /** VC_PLUGIN_H_ @}*/
+#endif

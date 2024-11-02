@@ -1,4 +1,8 @@
 /*
+ * Modifications Copyright 2024 Fondazione LINKS.
+ */
+
+/*
  * Copyright (C) 2009 Martin Willi
  * Copyright (C) 2014-2016 Andreas Steffen
  *
