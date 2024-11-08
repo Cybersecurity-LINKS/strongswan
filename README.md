@@ -6,8 +6,8 @@ The original `README` can be found at [README-STRONGSWAN](README-STRONGSWAN.md)
 
 ## Modifications
 
-A brief description of added and modified files can be found at [MODIFICATIONS](MODIFICAIONS.md).
-
+A brief description of added and modified files can be found at [MODIFICATIONS](MODIFICATIONS.md).
+T
 ## Build
 
 We added the `vc-iota` plugin in the `configure.ac` file to support VC authentication in IKEv2. The option is disabled by default, so when you run the `configure` script you need to add the option `--enable-vc-iota`
