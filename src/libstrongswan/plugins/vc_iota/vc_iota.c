@@ -135,7 +135,7 @@ METHOD(verifiable_credential_t, destroy, void,
 /**
  * See header.
  */
-vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
+vc_t *vc_iota_gen(verifiable_credential_type_t type, va_list args)
 {   
     private_vc_t *this;
     chunk_t did_doc = chunk_empty;
@@ -211,7 +211,7 @@ vc_t *vc_gen(verifiable_credential_type_t type, va_list args)
 /**
  * See header.
  */
-vc_t *vc_load(verifiable_credential_type_t type, va_list args)
+vc_t *vc_iota_load(verifiable_credential_type_t type, va_list args)
 {
     private_vc_t *this;
     chunk_t jwt = chunk_empty;

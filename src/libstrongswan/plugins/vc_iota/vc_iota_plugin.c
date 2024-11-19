@@ -42,9 +42,9 @@ METHOD(plugin_t, get_features, int,
 	private_vc_plugin_t *this, plugin_feature_t *features[])
 {   
     static plugin_feature_t f[] = {
-        PLUGIN_REGISTER(VC, vc_load, FALSE),
+        PLUGIN_REGISTER(VC, vc_iota_load, FALSE),
             PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
-        PLUGIN_REGISTER(VC, vc_gen, FALSE),
+        PLUGIN_REGISTER(VC, vc_iota_gen, FALSE),
             PLUGIN_PROVIDE(VC, VC_DATA_MODEL_2_0),
         PLUGIN_REGISTER(DID, did_iota_gen, FALSE),
             PLUGIN_PROVIDE(DID, DID_IOTA),

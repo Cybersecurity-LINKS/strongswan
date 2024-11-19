@@ -39,7 +39,7 @@ struct vc_t {
  * @return 			Generated VC, NULL on failure 
  */
 
-vc_t *vc_gen(verifiable_credential_type_t type, va_list args);
+vc_t *vc_iota_gen(verifiable_credential_type_t type, va_list args);
 
 /**
  * Load a VC
@@ -49,7 +49,7 @@ vc_t *vc_gen(verifiable_credential_type_t type, va_list args);
  * @return 			loaded VC, NULL on failure 
  */
 
-vc_t *vc_load(verifiable_credential_type_t type, va_list args);
+vc_t *vc_iota_load(verifiable_credential_type_t type, va_list args);
 
 #endif
 #endif
